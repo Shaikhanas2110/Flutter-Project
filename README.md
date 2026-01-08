@@ -1,93 +1,137 @@
-# Flutter-Project
-📊 Subscription Tracker App (Flutter)
+# 📊 Subscription Tracker App (Flutter)
 
-A modern Subscription Tracker mobile application built using Flutter that helps users manage, track, and monitor their recurring subscriptions in one place. The app allows users to keep track of payments, billing cycles, and upcoming renewal dates to avoid unwanted charges.
+A modern **Subscription Tracker mobile application** built using **Flutter** that helps users manage, track, and monitor their recurring subscriptions in one place. The app allows users to keep track of payments, billing cycles, and upcoming renewal dates to avoid unwanted charges.
 
-🚀 Features :- 
+---
 
-🔐 User Authentication
-  Secure login & signup using Firebase Authentication
+## 🚀 Features
 
-🧾 Subscription Management
-  Add, edit, and delete subscriptions
-  Track service name, cost, billing cycle, category, and description
+### 🔐 User Authentication
+- Secure login & signup using Firebase Authentication
 
-⏰ Next Payment Tracking
-  Automatically calculates upcoming payment dates
-  Shows remaining days until the next payment
+### 🧾 Subscription Management
+- Add, edit, and delete subscriptions
+- Track service name, cost, billing cycle, category, and description
 
-📈 Spending Insights
-  Monthly spending overview
-  Category-wise expense tracking
+### ⏰ Next Payment Tracking
+- Automatically calculates upcoming payment dates
+- Shows remaining days until the next payment
 
-☁️ Cloud Storage
-  User-specific data stored securely using Firebase Firestore
+### 📈 Spending Insights
+- Monthly spending overview
+- Category-wise expense tracking
 
-🎨 Modern UI
-  Clean and minimal UI
-  Dark theme support
-  Responsive design for different screen sizes
+### ☁️ Cloud Storage
+- User-specific data stored securely using Firebase Firestore
 
-🛠️ Tech Stack :- 
+### 🎨 Modern UI
+- Clean and minimal UI
+- Dark theme support
+- Responsive design for different screen sizes
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer            | Technology          |
-| ---------------- | ------------------- |
+|------------------|---------------------|
 | Framework        | Flutter (Dart)      |
 | Backend          | Firebase            |
-| Authentication   | Firebase Auth       |
+| Authentication  | Firebase Auth       |
 | Database         | Cloud Firestore     |
 | Charts           | FL Chart            |
-| State Management | Provider / setState |
-| UI Design        | Material UI         |
+| State Management| Provider / setState |
+| UI Design       | Material UI         |
 
+---
 
-📱 App Screens (Planned / Implemented) :=
-    Login & Register Screen
-    Home Dashboard
-    Add Subscription Bottom Sheet
-    Subscription Details Page
-    Monthly Spending Chart
-    Profile & Settings
+## 📱 App Screens (Planned / Implemented)
 
-📂 Project Structure :- 
+- Login & Register Screen  
+- Home Dashboard  
+- Add Subscription Bottom Sheet  
+- Subscription Details Page  
+- Monthly Spending Chart  
+- Profile & Settings  
+
+---
+
+## 📂 Project Structure
 lib/
-│── main.dart
-│── models/
-│── services/
-│── views/
-│   ├── auth/
-│   ├── home/
-│   ├── subscriptions/
-│── widgets/
-│── utils/
+├── main.dart
+├── models/
+├── services/
+├── views/
+│ ├── auth/
+│ ├── home/
+│ └── subscriptions/
+├── widgets/
+└── utils/
 
-⚙️ Setup & Installation :- 
-1. Clone the repository :- git clone https://github.com/your-username/subscription-tracker-flutter.git
-2. Navigate to the project folder :- cd subscription-tracker-flutter
-3. Install dependencies :- flutter pub get
-4. Configure Firebase :- 
-    Create a Firebase project
-    Enable Authentication & Firestore
-    Add google-services.json (Android)
-    Add GoogleService-Info.plist (iOS)
-6. Run the app :- flutter run
+## ⚙️ Setup & Installation
 
-🔮 Future Enhancements :- 
-    🔔 Payment reminder notifications
-    💳 Payment method tracking
-    📊 Advanced analytics & charts
-    📤 Export subscription data
-    🌍 Multi-currency support
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/your-username/subscription-tracker-flutter.git
+```
 
-🤝 Contributing :- 
-      Contributions are welcome!
-      Feel free to fork the repository, create a feature branch, and submit a pull request.
+### 2️⃣ Navigate to the project folder
+```bash
+cd subscription-tracker-flutter
+```
 
-📜 License :- 
-    This project is licensed under the MIT License.
+### 3️⃣ Install dependencies
+```bash
+flutter pub get
+```
 
-👨‍💻 Author :- 
-    Shaikh Anas
-    Flutter & MERN Stack Developer
-    📧 Email: shaikhanas2354@gmail.com
-    🌐 GitHub: https://github.com/Shaikhanas2110/    
+### 4️⃣ Configure Firebase
+- Create a Firebase project
+- Enable Authentication and Cloud Firestore
+- Add the following files:
+  - google-services.json (Android)
+  - GoogleService-Info.plist (iOS)
+
+### 5️⃣ Run the app
+```bash 
+flutter run
+```
+
+
+---
+
+## 🔮 Future Enhancements
+
+- 🔔 Payment reminder notifications  
+- 💳 Payment method tracking  
+- 📊 Advanced analytics & charts  
+- 📤 Export subscription data  
+- 🌍 Multi-currency support  
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository  
+2. Create a new feature branch  
+3. Commit your changes  
+4. Push to your branch  
+5. Submit a pull request  
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+## 👨‍💻 Author
+
+**Shaikh Anas**  
+Flutter & MERN Stack Developer  
+
+📧 Email: shaikhanas2354@gmail.com  
+🌐 GitHub: https://github.com/Shaikhanas2110/
