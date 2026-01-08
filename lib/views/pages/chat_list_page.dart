@@ -7,7 +7,11 @@ class ChatListPage extends StatelessWidget {
 
   final List<Map<String, dynamic>> chats = [
     {"name": "Anas", "message": "Hello My Bro!!", "time": "10:45 AM"},
-    {"name": "Shlok","message": "What are you doing mann!!","time": "11:50 PM",},
+    {
+      "name": "Shlok",
+      "message": "What are you doing mann!!",
+      "time": "11:50 PM",
+    },
     {"name": "Fahad", "message": "Hi Where are you?", "time": "1:00 AM"},
     {"name": "Dad", "message": "Send me money!", "time": "5:00 PM"},
     {"name": "Mom", "message": "Good Job!", "time": "9:45 AM"},
@@ -43,17 +47,6 @@ class ChatListPage extends StatelessWidget {
             color: Colors.white,
           ),
           SizedBox(width: 20),
-          IconButton(
-            onPressed: () {
-              isDarkModeNotifier.value = !isDarkModeNotifier.value;
-            },
-            icon: ValueListenableBuilder(
-              valueListenable: isDarkModeNotifier,
-              builder: (context, isDarkMode, child) {
-                return Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode);
-              },
-            ),
-          ),
         ],
       ),
 
@@ -81,7 +74,7 @@ class ChatListPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return ChatPage(name: chats[index]["name"],);
+                        return ChatPage(name: chats[index]["name"]);
                       },
                     ),
                   );

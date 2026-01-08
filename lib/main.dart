@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:my_app/views/data/notifiers.dart';
+import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/page/home_page.dart';
 import 'package:my_app/views/page/payment_page.dart';
 import 'package:my_app/views/page/report_page.dart';
@@ -8,12 +7,18 @@ import 'package:my_app/views/page/settings_page.dart';
 import 'package:my_app/views/widget_tree_second.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -34,31 +39,26 @@ class _MyAppState extends State<MyApp> {
     try {
       await FlutterDisplayMode.setHighRefreshRate();
     } catch (e) {
-      // Fail silently (device may not support it)
       debugPrint('Failed to set high refresh rate: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: isDarkModeNotifier,
-      builder: (context, isDarkMode, child) {
-        return MaterialApp(
-          routes: {
-            '/subscriptions': (_) => const HomeScreen(),
-            '/payments': (_) => const PaymentScreen(),
-            '/reports': (_) => const ReportsScreen(),
-            '/settings': (_) => const SettingsScreen(),
-          },
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            textTheme: GoogleFonts.lexendTextTheme(),
-            primarySwatch: Colors.blueGrey,
-          ),
-          home: WidgetTreeSecond(),
-        );
+    final themeProvider = context.watch<ThemeProvider>();
+
+    return MaterialApp(
+      routes: {
+        '/subscriptions': (_) => const HomeScreen(),
+        '/payments': (_) => const PaymentScreen(),
+        '/reports': (_) => const ReportsScreen(),
+        '/settings': (_) => const SettingsScreen(),
       },
+      debugShowCheckedModeBanner: false,
+      theme: themeProvider.lightTheme,
+      darkTheme: themeProvider.darkTheme,
+      themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+      home: const WidgetTreeSecond(),
     );
   }
 }

@@ -4,13 +4,51 @@ import 'package:my_app/views/page/payment_page.dart';
 import 'package:my_app/views/page/report_page.dart';
 import 'package:my_app/views/page/settings_page.dart';
 import 'drawer_item.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 enum DrawerPage { subscriptions, payments, reports, settings }
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   final DrawerPage currentPage;
 
   const AppDrawer({super.key, required this.currentPage});
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  String username = "Loading...";
+
+  Future<void> fetchUsername() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final ref = FirebaseDatabase.instance
+        .ref()
+        .child("users")
+        .child(user.uid)
+        .child("username");
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      setState(() {
+        username = snapshot.value.toString();
+      });
+    } else {
+      setState(() {
+        username = "User";
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUsername();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +69,7 @@ class AppDrawer extends StatelessWidget {
               DrawerItem(
                 icon: Icons.subscriptions,
                 title: 'Subscriptions',
-                isSelected: currentPage == DrawerPage.subscriptions,
+                isSelected: widget.currentPage == DrawerPage.subscriptions,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -52,7 +90,7 @@ class AppDrawer extends StatelessWidget {
               DrawerItem(
                 icon: Icons.payment,
                 title: 'Payments',
-                isSelected: currentPage == DrawerPage.payments,
+                isSelected: widget.currentPage == DrawerPage.payments,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -73,7 +111,7 @@ class AppDrawer extends StatelessWidget {
               DrawerItem(
                 icon: Icons.bar_chart,
                 title: 'Reports',
-                isSelected: currentPage == DrawerPage.reports,
+                isSelected: widget.currentPage == DrawerPage.reports,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -94,7 +132,7 @@ class AppDrawer extends StatelessWidget {
               DrawerItem(
                 icon: Icons.settings,
                 title: 'Settings',
-                isSelected: currentPage == DrawerPage.settings,
+                isSelected: widget.currentPage == DrawerPage.settings,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -118,12 +156,12 @@ class AppDrawer extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
-                  children: const [
-                    CircleAvatar(radius: 22, child: Icon(Icons.person)),
-                    SizedBox(width: 12),
+                  children: [
+                    const CircleAvatar(radius: 22, child: Icon(Icons.person)),
+                    const SizedBox(width: 12),
                     Text(
-                      'Shaikh Anas',
-                      style: TextStyle(
+                      username.isNotEmpty ? username : "U",                      
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: Colors.grey,

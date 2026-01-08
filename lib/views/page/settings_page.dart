@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/views/data/classes/theme_provider.dart';
+import 'package:my_app/views/data/notifiers.dart';
+import 'package:provider/provider.dart';
 import '../drawer/app_drawer.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -7,7 +10,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF000000),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         actions: [
           Builder(
@@ -17,8 +20,8 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ],
-        backgroundColor: Color(0xFF000000),
-        foregroundColor: Colors.grey,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         scrolledUnderElevation: 2,
         surfaceTintColor: Colors.transparent,
@@ -42,7 +45,10 @@ class SettingsScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF000000), Color(0xFF000000)],
+            colors: [
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).scaffoldBackgroundColor,
+            ],
           ),
         ),
         child: SafeArea(
@@ -54,7 +60,8 @@ class SettingsScreen extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: Color(0xFF1f1f1f),
+                    color: Theme.of(context).cardColor,
+
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -62,7 +69,7 @@ class SettingsScreen extends StatelessWidget {
                       // User Icon
                       CircleAvatar(
                         radius: 22,
-                        backgroundColor: Colors.grey,
+                        backgroundColor: Theme.of(context).textTheme.bodyMedium?.color,
                         child: Icon(
                           Icons.person,
                           color: Color(0xFF000000),
@@ -78,8 +85,8 @@ class SettingsScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Shaikh Anas',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
@@ -87,8 +94,8 @@ class SettingsScreen extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             'shaikhanas2354@gmail.com',
-                            style: const TextStyle(
-                              color: Colors.white54,
+                            style: TextStyle(
+                              color: Theme.of(context).textTheme.bodyMedium?.color,
                               fontSize: 13,
                             ),
                           ),
@@ -102,7 +109,7 @@ class SettingsScreen extends StatelessWidget {
                 Text(
                   'Preferences '.toUpperCase(),
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -110,7 +117,8 @@ class SettingsScreen extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: Color(0xFF1f1f1f),
+                    color: Theme.of(context).cardColor,
+
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -123,7 +131,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.notifications_on_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -133,7 +141,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Notifications',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -141,7 +149,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Payment reminders and alerts',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(context).textTheme.bodyMedium?.color,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -160,7 +168,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.dark_mode_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -168,17 +176,15 @@ class SettingsScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Dark Mode',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    themeNotifier.value == ThemeMode.dark
+                                        ? "Dark Mode"
+                                        : "Light Mode",
+                                    style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color,fontWeight: FontWeight.bold)
                                   ),
                                   Text(
                                     'Always Enabled',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(context).textTheme.bodyMedium?.color,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -187,9 +193,10 @@ class SettingsScreen extends StatelessWidget {
                             ],
                           ),
                           Switch(
-                            value: true,
-                            onChanged: (value) {},
-                            activeTrackColor: Colors.blueAccent,
+                            value: context.watch<ThemeProvider>().isDark,
+                            onChanged: (val) {
+                              context.read<ThemeProvider>().toggleTheme(val);
+                            },
                           ),
                         ],
                       ),
@@ -201,7 +208,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.language_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -211,7 +218,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Language',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -219,7 +226,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'English',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(context).textTheme.bodyMedium?.color,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -244,7 +251,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.wallet_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -254,7 +261,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Currency',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -262,7 +269,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'USD (\$)',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(context).textTheme.bodyMedium?.color,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -287,7 +294,7 @@ class SettingsScreen extends StatelessWidget {
                 Text(
                   'Security'.toUpperCase(),
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -295,7 +302,8 @@ class SettingsScreen extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: Color(0xFF1f1f1f),
+                    color: Theme.of(context).cardColor,
+
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -308,7 +316,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.lock_outline,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -318,7 +326,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Biometric Lock',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -326,7 +334,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Use Face ID to unlock',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(context).textTheme.bodyMedium?.color,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -349,7 +357,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.phone_android_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -359,7 +367,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Change Password',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -385,7 +393,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.wallet_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -395,7 +403,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Payment Method',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -403,7 +411,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     '2 Connected',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(context).textTheme.bodyMedium?.color,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -428,7 +436,7 @@ class SettingsScreen extends StatelessWidget {
                 Text(
                   'Support'.toUpperCase(),
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -436,7 +444,8 @@ class SettingsScreen extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: Color(0xFF1f1f1f),
+                    color: Theme.of(context).cardColor,
+
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -449,7 +458,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.question_mark_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -459,7 +468,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Help Center',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -485,7 +494,7 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.email_outlined,
-                                color: Colors.grey,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
                               SizedBox(width: 15),
@@ -495,7 +504,7 @@ class SettingsScreen extends StatelessWidget {
                                   Text(
                                     'Contact Support',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
