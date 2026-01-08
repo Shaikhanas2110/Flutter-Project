@@ -1,0 +1,544 @@
+import 'package:flutter/material.dart';
+import 'package:my_app/views/data/classes/subscriptions.dart';
+import 'package:my_app/views/widgets/form_widget.dart';
+import '../drawer/app_drawer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => HomeScreenState();
+}
+
+List<Subscription> subscriptions = [];
+bool isLoading = true;
+int nearestPaymentDays = -1;
+
+class HomeScreenState extends State<HomeScreen> {
+  Future<void> fetchSubscriptions() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final ref = FirebaseDatabase.instance
+        .ref()
+        .child("users")
+        .child(user.uid)
+        .child("subscriptions");
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      final Map data = snapshot.value as Map;
+
+      final List<Subscription> loadedSubs = [];
+
+      data.forEach((key, value) {
+        DateTime? parsedDate;
+
+        final rawDate = value["nextPaymentDate"];
+
+        if (rawDate != null && rawDate is String && rawDate.isNotEmpty) {
+          try {
+            parsedDate = DateTime.parse(rawDate);
+          } catch (e) {
+            debugPrint("Invalid date for $key → $rawDate");
+          }
+        }
+
+        loadedSubs.add(
+          Subscription(
+            id: key,
+            serviceName: value["serviceName"] ?? "",
+            billingCycle: value["billingCycle"] ?? "",
+            cost: (value["cost"] as num).toDouble(),
+            category: value["category"] ?? "",
+            nextPaymentDate: parsedDate, // ✅ SAFE
+          ),
+        );
+      });
+
+      setState(() {
+        subscriptions = loadedSubs;
+
+        // 🔥 EXTRACT DATES HERE
+        final dates = subscriptions
+            .where((s) => s.nextPaymentDate != null)
+            .map((s) => s.nextPaymentDate!.toIso8601String())
+            .toList();
+
+        nearestPaymentDays = getNearestPaymentDays(dates);
+
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        subscriptions = [];
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSubscriptions();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFF000000),
+      appBar: AppBar(
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, size: 35),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
+        ],
+        backgroundColor: Color(0xFF000000),
+        foregroundColor: Colors.grey,
+        elevation: 0,
+        scrolledUnderElevation: 2,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: Color(0xFF1f1f1f)),
+        ),
+        automaticallyImplyLeading: false,
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.wallet_rounded, size: 35, color: Colors.blueAccent),
+            SizedBox(width: 10),
+            Text('SubTracker', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+      drawer: const AppDrawer(currentPage: DrawerPage.subscriptions),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF000000), Color(0xFF000000)],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: summaryCard(
+                        icon: Icon(
+                          Icons.currency_rupee,
+                          color: const Color(0xFF16a34a),
+                          size: 35,
+                        ),
+                        title: 'Monthly Spend',
+                        value: Row(
+                          children: [
+                            Icon(
+                              Icons.currency_rupee,
+                              color: const Color(0xFF16a34a),
+                            ),
+                            Text(
+                              calculateMonthlySpend(
+                                subscriptions,
+                              ).toStringAsFixed(0),
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF16a34a),
+                              ),
+                            ),
+                          ],
+                        ),
+                        color: Color(0xFF16a34a),
+                        boxColor: Color(0xFFdcfce7),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: summaryCard(
+                        icon: Icon(
+                          Icons.subscriptions,
+                          color: const Color(0xFF3b82f6),
+                          size: 35,
+                        ),
+                        title: 'Active Subs',
+                        value: Text(
+                          subscriptions.length.toString(),
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF3b82f6),
+                          ),
+                        ),
+                        color: Color(0xFF3b82f6),
+                        boxColor: Color(0xFFdbeafe),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: summaryCard(
+                        icon: Icon(
+                          Icons.bar_chart,
+                          color: const Color.fromARGB(255, 162, 137, 124),
+                          size: 35,
+                        ),
+                        title: 'Yearly Spend',
+                        value: Row(
+                          children: [
+                            Icon(
+                              Icons.currency_rupee,
+                              color: const Color(0xFFea580c),
+                            ),
+                            Text(
+                              yearlyCost(
+                                subscriptions,
+                              ).floorToDouble().toStringAsFixed(0),
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFFea580c),
+                              ),
+                            ),
+                          ],
+                        ),
+                        color: Color(0xFFea580c),
+                        boxColor: Color(0xFFfed7aa),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: summaryCard(
+                        icon: Icon(
+                          Icons.next_plan,
+                          color: const Color(0xFF9333ea),
+                          size: 35,
+                        ),
+                        title: 'Next Payment',
+                        value: Text(
+                          nextPaymentText(),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF9333ea),
+                          ),
+                        ),
+
+                        color: Color(0xFF9333ea),
+                        boxColor: Color(0xFFf3e8ff),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 24),
+                Text(
+                  'Subscriptions',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                buildSubscriptionsList(),
+              ],
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            backgroundColor: Color(0xFF000000),
+            context: context,
+            isScrollControlled: true, // Enables full screen dragging
+            builder: (context) {
+              return DraggableScrollableSheet(
+                initialChildSize: 0.7, // Sheet starts at 30% height
+                minChildSize: 0.1,
+                maxChildSize: 0.8, // Can be dragged up to 80% height
+                expand: false, // Ensures it doesn't take full screen initially
+                builder: (context, scrollController) => AddSubscriptionDialog(
+                  onSubscriptionAdded:
+                      fetchSubscriptions, // 🔥 PASS CALLBACK543
+                ),
+              );
+            },
+          );
+        },
+        backgroundColor: Color(0xFF000000),
+        child: Text(
+          '+',
+          style: TextStyle(
+            color: Color(0xFF3b82f6),
+            fontWeight: FontWeight.bold,
+            fontSize: 30,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget summaryCard({
+  required Icon icon,
+  required String title,
+  required Widget value,
+  required Color color,
+  required Color boxColor,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Color(0xFF1f1f1f),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Color(0xFF000000),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon.icon, color: icon.color, size: icon.size),
+        ),
+        const SizedBox(height: 12),
+        value,
+        Text(title, style: const TextStyle(color: Colors.grey)),
+        const SizedBox(height: 12),
+      ],
+    ),
+  );
+}
+
+Widget buildSubscriptionsList() {
+  if (isLoading) {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  if (subscriptions.isEmpty) {
+    return const Center(
+      child: Text(
+        "No subscriptions added",
+        style: TextStyle(color: Colors.grey),
+      ),
+    );
+  }
+
+  return Container(
+    decoration: BoxDecoration(color: Color(0xFF000000)),
+    child: ListView.builder(
+      shrinkWrap: true, // ✅ VERY IMPORTANT
+      physics: const NeverScrollableScrollPhysics(), // ✅ Prevent conflict
+      itemCount: subscriptions.length,
+      itemBuilder: (context, index) {
+        final sub = subscriptions[index];
+
+        return subscriptionTile(
+          sub.serviceName,
+          sub.billingCycle,
+          "₹${sub.cost.toStringAsFixed(0)}",
+          _categoryColor(sub.category),
+          sub.category,
+        );
+      },
+    ),
+  );
+}
+
+Color _categoryColor(String category) {
+  switch (category) {
+    case "Streaming":
+      return Colors.redAccent;
+    case "Productivity":
+      return Colors.blueAccent;
+    case "Education":
+      return Colors.greenAccent;
+    case "Music":
+      return Colors.amberAccent;
+    case "Storage":
+      return Colors.limeAccent;
+    case "Design":
+      return Colors.pinkAccent;
+    case "Development":
+      return Colors.indigoAccent;
+    case "News":
+      return Colors.deepOrangeAccent;
+    case "Fitness":
+      return Colors.purpleAccent;
+    default:
+      return Colors.grey;
+  }
+}
+
+IconData _iconForCategory(String category) {
+  switch (category) {
+    case "Streaming":
+      return Icons.tv;
+    case "Productivity":
+      return Icons.design_services_outlined;
+    case "Education":
+      return Icons.school_outlined;
+    case "Music":
+      return Icons.headphones_outlined;
+    case "Storage":
+      return Icons.cloud_outlined;
+    case "Design":
+      return Icons.brush_outlined;
+    case "Development":
+      return Icons.developer_mode_outlined;
+    case "News":
+      return Icons.newspaper_outlined;
+    case "Fitness":
+      return Icons.newspaper_outlined;
+    default:
+      return Icons.subscriptions;
+  }
+}
+
+Widget subscriptionTile(
+  String title,
+  String subtitle,
+  String price,
+  Color color,
+  String category,
+) {
+  final iconData = _iconForCategory(category); // Get icon by category
+
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: const Color(0xFF1f1f1f),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Row(
+      children: [
+        Container(
+          height: 44,
+          width: 44,
+          decoration: BoxDecoration(
+            color: const Color(0xFF000000),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          alignment: Alignment.center,
+          child: Icon(iconData, color: color, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(subtitle, style: const TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ),
+        Text(
+          price,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+double calculateMonthlySpend(List<Subscription> subs) {
+  double total = 0;
+
+  for (final sub in subs) {
+    total += _monthlyCost(sub);
+  }
+
+  return total.floorToDouble();
+}
+
+double _monthlyCost(Subscription sub) {
+  switch (sub.billingCycle.toLowerCase()) {
+    case "monthly":
+      return sub.cost;
+
+    case "yearly":
+      return sub.cost / 12;
+
+    case "weekly":
+      return sub.cost * 4.33; // avg weeks per month
+
+    case "quaterly":
+      return sub.cost / 3;
+
+    default:
+      return 0;
+  }
+}
+
+int getNearestPaymentDays(List<String> dateStrings) {
+  final DateTime today = DateTime.now();
+  final DateTime todayDate = DateTime(today.year, today.month, today.day);
+
+  int? nearestDays;
+
+  for (String date in dateStrings) {
+    final DateTime paymentDate = DateTime.parse(date);
+    final int daysLeft = paymentDate.difference(todayDate).inDays;
+
+    if (daysLeft >= 0) {
+      if (nearestDays == null || daysLeft < nearestDays) {
+        nearestDays = daysLeft;
+      }
+    }
+  }
+
+  return nearestDays ?? -1; // -1 = no upcoming payments
+}
+
+int getDaysUntilPayment(String dateString) {
+  final DateTime today = DateTime.now();
+  final DateTime paymentDate = DateTime.parse(dateString);
+
+  final Duration diff = paymentDate.difference(
+    DateTime(today.year, today.month, today.day),
+  );
+
+  return diff.inDays;
+}
+
+double yearlyCost(List<Subscription> subs) {
+  return calculateMonthlySpend(subs) * 12.00;
+}
+
+String nextPaymentText() {
+  if (nearestPaymentDays == -1) return "No upcoming";
+  if (nearestPaymentDays == 0) return "Today";
+  if (nearestPaymentDays == 1) return "Tomorrow";
+  return "$nearestPaymentDays days";
+}
