@@ -86,7 +86,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final totalThisMonth = totalDueThisMonth(subscriptions);
 
     return Scaffold(
-      backgroundColor: Color(0xFF000000),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         actions: [
@@ -97,8 +97,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ),
         ],
-        backgroundColor: Color(0xFF000000),
-        foregroundColor: Colors.grey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         scrolledUnderElevation: 2,
         surfaceTintColor: Colors.transparent,
@@ -124,7 +124,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF000000), Color(0xFF000000)],
+            colors: [
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).scaffoldBackgroundColor,
+            ],
           ),
         ),
         child: SafeArea(
@@ -140,7 +143,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Color(0xFF1f1f1f),
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -149,7 +152,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             Container(
                               padding: EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Color(0xFF000000),
+                                color: Theme.of(
+                                  context,
+                                ).scaffoldBackgroundColor,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(
@@ -163,7 +168,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               children: [
                                 Icon(
                                   Icons.currency_rupee,
-                                  color: Colors.white,
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodyLarge?.color,
                                   size: 26,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -172,7 +179,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   style: TextStyle(
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge?.color,
                                   ),
                                 ),
                               ],
@@ -180,7 +189,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                             Text(
                               'due this month',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.color,
+                              ),
                             ),
                           ],
                         ),
@@ -194,16 +207,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Text(
                   'This Week'.toUpperCase(),
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16),
                 if (buckets.thisWeek.isEmpty)
-                  Center(child: emptyText('No subscriptions due this week'))
+                  Center(
+                    child: emptyText('No subscriptions due this week', context),
+                  )
                 else
                   ...buckets.thisWeek.map(
                     (sub) => subscriptionTile(
+                      context,
                       sub.serviceName,
                       sub.category,
                       '₹${sub.cost.toStringAsFixed(2)}',
@@ -217,16 +233,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Text(
                   'This Month'.toUpperCase(),
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16),
                 if (buckets.thisMonth.isEmpty)
-                  Center(child: emptyText('No subscriptions due this month'))
+                  Center(
+                    child: emptyText(
+                      'No subscriptions due this month',
+                      context,
+                    ),
+                  )
                 else
                   ...buckets.thisMonth.map(
                     (sub) => subscriptionTile(
+                      context,
                       sub.serviceName,
                       sub.category,
                       '₹${sub.cost.toStringAsFixed(2)}',
@@ -240,16 +262,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Text(
                   'Next MONTH'.toUpperCase(),
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16),
                 if (buckets.nextMonth.isEmpty)
-                  Center(child: emptyText('No subscriptions due next month'))
+                  Center(
+                    child: emptyText(
+                      'No subscriptions due next month',
+                      context,
+                    ),
+                  )
                 else
                   ...buckets.nextMonth.map(
                     (sub) => subscriptionTile(
+                      context,
                       sub.serviceName,
                       sub.category,
                       '₹${sub.cost.toStringAsFixed(2)}',
@@ -267,6 +295,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 }
 
 Widget subscriptionTile(
+  BuildContext context,
   String title,
   String subtitle,
   String price,
@@ -278,7 +307,7 @@ Widget subscriptionTile(
     margin: EdgeInsets.only(bottom: 12),
     padding: EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Color(0xFF1f1f1f),
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(16),
     ),
     child: Row(
@@ -287,7 +316,7 @@ Widget subscriptionTile(
           height: 44,
           width: 44,
           decoration: BoxDecoration(
-            color: Color(0xFF000000),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,
@@ -302,11 +331,16 @@ Widget subscriptionTile(
                 title,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
               SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(color: Colors.grey)),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+              ),
             ],
           ),
         ),
@@ -319,14 +353,17 @@ Widget subscriptionTile(
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
               SizedBox(height: 4),
               if (date != null)
                 Text(
                   "${date.day}/${date.month}/${date.year}",
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                    fontSize: 16,
+                  ),
                 ),
             ],
           ),
@@ -444,9 +481,12 @@ IconData _iconForCategory(String category) {
   }
 }
 
-Widget emptyText(String text) {
+Widget emptyText(String text, BuildContext context) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Text(text, style: const TextStyle(color: Colors.grey)),
+    child: Text(
+      text,
+      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+    ),
   );
 }

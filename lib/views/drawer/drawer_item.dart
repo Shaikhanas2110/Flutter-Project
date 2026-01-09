@@ -37,14 +37,16 @@ class DrawerItem extends StatelessWidget {
               const SizedBox(width: 16),
               Icon(
                 icon,
-                color: isSelected ? Color(0xFF3b82f6) : Colors.grey,
+                color: isSelected
+                    ? Color(0xFF3b82f6)
+                    : Theme.of(context).textTheme.bodyLarge?.color,
               ),
               const SizedBox(width: 16),
               Text(
                 title,
                 style: TextStyle(
-                  color: isSelected ? Color(0xFF3b82f6) : Colors.grey,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  color: isSelected ? Color(0xFF3b82f6) :Theme.of(context).textTheme.bodyLarge?.color,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.bold,
                   fontSize: 16,
                 ),
               ),

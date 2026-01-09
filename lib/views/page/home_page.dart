@@ -89,7 +89,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF000000),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         actions: [
           Builder(
@@ -99,8 +99,8 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-        backgroundColor: Color(0xFF000000),
-        foregroundColor: Colors.grey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         scrolledUnderElevation: 2,
         surfaceTintColor: Colors.transparent,
@@ -124,7 +124,10 @@ class HomeScreenState extends State<HomeScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF000000), Color(0xFF000000)],
+            colors: [
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).scaffoldBackgroundColor,
+            ],
           ),
         ),
         child: SafeArea(
@@ -137,6 +140,7 @@ class HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: summaryCard(
+                        context,
                         icon: Icon(
                           Icons.currency_rupee,
                           color: const Color(0xFF16a34a),
@@ -168,6 +172,7 @@ class HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: summaryCard(
+                        context,
                         icon: Icon(
                           Icons.subscriptions,
                           color: const Color(0xFF3b82f6),
@@ -193,6 +198,7 @@ class HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: summaryCard(
+                        context,
                         icon: Icon(
                           Icons.bar_chart,
                           color: const Color.fromARGB(255, 162, 137, 124),
@@ -224,6 +230,7 @@ class HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: summaryCard(
+                        context,
                         icon: Icon(
                           Icons.next_plan,
                           color: const Color(0xFF9333ea),
@@ -250,13 +257,13 @@ class HomeScreenState extends State<HomeScreen> {
                 Text(
                   'Subscriptions',
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16),
 
-                buildSubscriptionsList(),
+                buildSubscriptionsList(context),
               ],
             ),
           ),
@@ -265,7 +272,7 @@ class HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
-            backgroundColor: Color(0xFF000000),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             context: context,
             isScrollControlled: true, // Enables full screen dragging
             builder: (context) {
@@ -282,7 +289,7 @@ class HomeScreenState extends State<HomeScreen> {
             },
           );
         },
-        backgroundColor: Color(0xFF000000),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         child: Text(
           '+',
           style: TextStyle(
@@ -296,7 +303,8 @@ class HomeScreenState extends State<HomeScreen> {
   }
 }
 
-Widget summaryCard({
+Widget summaryCard(
+  BuildContext context, {
   required Icon icon,
   required String title,
   required Widget value,
@@ -306,7 +314,7 @@ Widget summaryCard({
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Color(0xFF1f1f1f),
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(16),
     ),
     child: Column(
@@ -315,36 +323,41 @@ Widget summaryCard({
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Color(0xFF000000),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon.icon, color: icon.color, size: icon.size),
         ),
         const SizedBox(height: 12),
         value,
-        Text(title, style: const TextStyle(color: Colors.grey)),
+        Text(
+          title,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+        ),
         const SizedBox(height: 12),
       ],
     ),
   );
 }
 
-Widget buildSubscriptionsList() {
+Widget buildSubscriptionsList(BuildContext context) {
   if (isLoading) {
     return const Center(child: CircularProgressIndicator());
   }
 
   if (subscriptions.isEmpty) {
-    return const Center(
+    return Center(
       child: Text(
         "No subscriptions added",
-        style: TextStyle(color: Colors.grey),
+        style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
       ),
     );
   }
 
   return Container(
-    decoration: BoxDecoration(color: Color(0xFF000000)),
+    decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
     child: ListView.builder(
       shrinkWrap: true, // ✅ VERY IMPORTANT
       physics: const NeverScrollableScrollPhysics(), // ✅ Prevent conflict
@@ -353,6 +366,7 @@ Widget buildSubscriptionsList() {
         final sub = subscriptions[index];
 
         return subscriptionTile(
+          context,
           sub.serviceName,
           sub.billingCycle,
           "₹${sub.cost.toStringAsFixed(0)}",
@@ -415,6 +429,7 @@ IconData _iconForCategory(String category) {
 }
 
 Widget subscriptionTile(
+  BuildContext context,
   String title,
   String subtitle,
   String price,
@@ -427,7 +442,7 @@ Widget subscriptionTile(
     margin: const EdgeInsets.only(bottom: 12),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: const Color(0xFF1f1f1f),
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(16),
     ),
     child: Row(
@@ -436,7 +451,7 @@ Widget subscriptionTile(
           height: 44,
           width: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFF000000),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,
@@ -449,22 +464,27 @@ Widget subscriptionTile(
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(subtitle, style: const TextStyle(color: Colors.grey)),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+              ),
             ],
           ),
         ),
         Text(
           price,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.grey,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
           ),
         ),
       ],

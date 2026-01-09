@@ -73,7 +73,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final total = getTotalSpending(categoryData);
 
     return Scaffold(
-      backgroundColor: Color(0xFF000000),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         actions: [
           Builder(
@@ -83,8 +83,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
             ),
           ),
         ],
-        backgroundColor: Color(0xFF000000),
-        foregroundColor: Colors.grey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         scrolledUnderElevation: 2,
         surfaceTintColor: Colors.transparent,
@@ -108,7 +108,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF000000), Color(0xFF000000)],
+            colors: [
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).scaffoldBackgroundColor,
+            ],
           ),
         ),
         child: SafeArea(
@@ -121,7 +124,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   children: [
                     Expanded(
                       child: summaryCard(
-                        icon: Icon(Icons.trending_up, color: Colors.grey),
+                        context,
+                        icon: Icon(
+                          Icons.trending_up,
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
                         title: '+8.2% from last month',
                         value: '\$142.4',
                         color: Color(0xFF16a34a),
@@ -131,7 +138,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: summaryCard(
-                        icon: Icon(Icons.trending_down, color: Colors.grey),
+                        context,
+                        icon: Icon(
+                          Icons.trending_down,
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
                         title: '+8.2% from last month',
                         value: '\$142.4',
                         color: Color(0xFF16a34a),
@@ -144,7 +155,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 Text(
                   'Spending Trends',
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -152,7 +163,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 Container(
                   height: 250,
                   decoration: BoxDecoration(
-                    color: Color(0xFF1f1f1f),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: BarChart(
@@ -165,8 +176,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       gridData: FlGridData(
                         show: false,
                         drawVerticalLine: false,
-                        getDrawingHorizontalLine: (_) =>
-                            FlLine(color: Colors.white10, strokeWidth: 1),
+                        getDrawingHorizontalLine: (_) => FlLine(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          strokeWidth: 1,
+                        ),
                       ),
 
                       borderData: FlBorderData(show: false),
@@ -207,8 +220,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                               return Text(
                                 months[index],
-                                style: const TextStyle(
-                                  color: Colors.white54,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodyLarge?.color,
                                   fontSize: 10,
                                 ),
                               );
@@ -224,14 +239,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 Text(
                   'By Category',
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16),
                 Container(
                   decoration: BoxDecoration(
-                    color: Color(0xFF1f1f1f),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Padding(
@@ -241,6 +256,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         final percentage = entry.value / total;
 
                         return categoryRow(
+                          context,
                           title: entry.key,
                           amount: entry.value,
                           percentage: percentage,
@@ -259,7 +275,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 }
 
-Widget summaryCard({
+Widget summaryCard(
+  BuildContext context, {
   required Icon icon,
   required String title,
   required String value,
@@ -269,7 +286,7 @@ Widget summaryCard({
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Color(0xFF1f1f1f),
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(16),
     ),
     child: Column(
@@ -279,7 +296,10 @@ Widget summaryCard({
           children: [
             Text(
               'THIS MONTH',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(width: 10),
             Icon(icon.icon, color: icon.color),
@@ -294,7 +314,12 @@ Widget summaryCard({
             color: color,
           ),
         ),
-        Text(title, style: const TextStyle(color: Colors.grey)),
+        Text(
+          title,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+        ),
         const SizedBox(height: 12),
       ],
     ),
@@ -380,7 +405,8 @@ double getTotalSpending(Map<String, double> data) {
   return data.values.fold(0, (a, b) => a + b);
 }
 
-Widget categoryRow({
+Widget categoryRow(
+  BuildContext context, {
   required String title,
   required double amount,
   required double percentage,
@@ -397,7 +423,10 @@ Widget categoryRow({
           width: 110,
           child: Text(
             title,
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+              fontSize: 15,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -421,7 +450,9 @@ Widget categoryRow({
           child: Text(
             '₹${amount.toStringAsFixed(1)}',
             textAlign: TextAlign.right,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
           ),
         ),
       ],

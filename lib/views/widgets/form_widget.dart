@@ -27,7 +27,7 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Color(0xFF000000),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
       child: SingleChildScrollView(
@@ -43,12 +43,12 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Add Subscription",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
                     IconButton(
@@ -180,7 +180,10 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel",style: TextStyle(color: Colors.blueAccent),),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.blueAccent),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
@@ -191,9 +194,11 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                         ),
                       ),
                       onPressed: _submitForm,
-                      child: const Text(
+                      child: Text(
                         "Add Subscription",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
                       ),
                     ),
                   ],
@@ -282,10 +287,10 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
     padding: const EdgeInsets.only(bottom: 6),
     child: Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w500,
-        color: Colors.grey,
+        color: Theme.of(context).textTheme.bodyLarge?.color,
       ),
     ),
   );
@@ -301,7 +306,7 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
     VoidCallback? onTap,
   }) {
     return TextFormField(
-      style: TextStyle(color: Colors.white),
+      style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
       controller: controller,
       keyboardType: keyboardType,
       readOnly: readOnly,
@@ -312,7 +317,9 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
         hintText: hint,
         suffixIcon: icon != null ? Icon(icon, size: 18) : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        hintStyle: TextStyle(color: Colors.grey),
+        hintStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium?.color,
+        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.blueAccent, width: 2),
@@ -327,8 +334,11 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      dropdownColor: Color(0xFF000000),
-      style: TextStyle(color: Colors.white),
+      dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+      style: TextStyle(
+        color: Theme.of(context).textTheme.bodyLarge?.color,
+        fontWeight: FontWeight.bold,
+      ),
       value: value,
       isExpanded: true,
       items: items
@@ -342,8 +352,12 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
       onChanged: onChanged,
       validator: (v) => v == null ? "Please select a category" : null,
       decoration: InputDecoration(
-        labelStyle: const TextStyle(color: Colors.black),
-        floatingLabelStyle: const TextStyle(color: Colors.black),
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        ),
+        floatingLabelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        ),
         errorMaxLines: 2,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,

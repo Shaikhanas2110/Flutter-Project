@@ -53,14 +53,17 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: Container(
         padding: EdgeInsets.only(top: 10.0),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF000000), Color(0xFF000000)],
+            colors: [
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).scaffoldBackgroundColor,
+            ],
           ),
         ),
         child: SafeArea(
@@ -157,14 +160,21 @@ class _AppDrawerState extends State<AppDrawer> {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    const CircleAvatar(radius: 22, child: Icon(Icons.person)),
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.blueAccent,
+                      child: Icon(
+                        Icons.person,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Text(
-                      username.isNotEmpty ? username : "U",                      
-                      style: const TextStyle(
+                      username.isNotEmpty ? username : "U",
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Colors.grey,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
                   ],
