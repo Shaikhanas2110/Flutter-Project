@@ -25,9 +25,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> loginUser(BuildContext context) async {
     _formKey.currentState!.save();
-
     try {
-      // ✅ Firebase Auth handles password verification
+      // Firebase Auth handles password verification
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),

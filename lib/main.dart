@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/page/home_page.dart';
@@ -58,7 +59,25 @@ class _MyAppState extends State<MyApp> {
       theme: themeProvider.lightTheme,
       darkTheme: themeProvider.darkTheme,
       themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
-      home: const WidgetTreeSecond(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          // ⏳ Waiting for Firebase
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          // Not logged in
+          if (!snapshot.hasData) {
+            return const WidgetTreeSecond();
+          }
+
+          // Logged in
+          return const HomeScreen();
+        },
+      ),
     );
   }
 }

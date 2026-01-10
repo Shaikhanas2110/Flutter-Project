@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/data/notifiers.dart';
+import 'package:my_app/views/page/login_page.dart';
 import 'package:provider/provider.dart';
 import '../drawer/app_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,7 +17,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String username = "Loading...";
   final user = FirebaseAuth.instance.currentUser;
-  late String email = user?.email ?? "no email"; 
+  late String email = user?.email ?? "no email";
 
   Future<void> fetchUsername() async {
     if (user == null) return;
@@ -622,7 +623,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 SizedBox(height: 24),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => LoginPage()),
+                    );
+                  },
                   child: Row(
                     children: [
                       Icon(
