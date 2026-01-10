@@ -201,7 +201,7 @@ class HomeScreenState extends State<HomeScreen> {
                         context,
                         icon: Icon(
                           Icons.bar_chart,
-                          color: const Color.fromARGB(255, 162, 137, 124),
+                          color: const Color(0xFFea580c),
                           size: 35,
                         ),
                         title: 'Yearly Spend',

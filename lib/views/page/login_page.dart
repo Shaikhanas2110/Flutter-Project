@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/page/home_page.dart';
 import 'package:my_app/views/page/register_page.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,6 +42,8 @@ class _LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(builder: (_) => HomeScreen()),
       );
+
+      context.read<ThemeProvider>().refreshThemeForUser();
     } on FirebaseAuthException catch (e) {
       String message = "Login failed";
 

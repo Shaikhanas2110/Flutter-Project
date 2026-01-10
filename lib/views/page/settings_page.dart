@@ -251,8 +251,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ],
                           ),
                           Switch(
-                            value: context.watch<ThemeProvider>().isDark,
                             activeThumbColor: Colors.blueAccent,
+                            value: context.watch<ThemeProvider>().isDark,
                             onChanged: (val) {
                               context.read<ThemeProvider>().toggleTheme(val);
                             },
@@ -629,6 +629,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => LoginPage()),
                     );
+                    context.read<ThemeProvider>().refreshThemeForUser();
                   },
                   child: Row(
                     children: [
