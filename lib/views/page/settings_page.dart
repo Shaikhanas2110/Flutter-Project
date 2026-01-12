@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/data/notifiers.dart';
+import 'package:my_app/views/page/change_pw.dart';
 import 'package:my_app/views/page/login_page.dart';
 import 'package:provider/provider.dart';
 import '../drawer/app_drawer.dart';
@@ -439,30 +440,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
-                              SizedBox(width: 15),
+                              // SizedBox(width: 15),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Change Password',
-                                    style: TextStyle(
-                                      color: Theme.of(
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
                                         context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return ChangePw();
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'Change Password',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge?.color,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ],
-                          ),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              items: List.empty(),
-                              onChanged: (value) {},
-                              icon: Icon(Icons.arrow_forward_ios_outlined),
-                            ),
                           ),
                         ],
                       ),
