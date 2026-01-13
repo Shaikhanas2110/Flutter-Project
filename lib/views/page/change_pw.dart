@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChangePw extends StatefulWidget {
@@ -10,6 +11,31 @@ class ChangePw extends StatefulWidget {
 class _ChangePwState extends State<ChangePw> {
   final _formKey = GlobalKey<FormState>();
   String email = "";
+  final TextEditingController emailController = TextEditingController();
+
+  Future<void> resetPassword(BuildContext context, String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password reset email sent. Check your inbox.'),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = 'Something went wrong';
+
+      if (e.code == 'user-not-found') {
+        message = 'No user found with this email';
+      } else if (e.code == 'invalid-email') {
+        message = 'Invalid email address';
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +87,7 @@ class _ChangePwState extends State<ChangePw> {
                       /// EMAIL
                       TextFormField(
                         style: const TextStyle(color: Colors.white),
+                        controller: emailController,
                         keyboardType: TextInputType.emailAddress,
                         onSaved: (value) {
                           email = value!;
@@ -102,7 +129,9 @@ class _ChangePwState extends State<ChangePw> {
 
                       ElevatedButton(
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {}
+                          if (_formKey.currentState!.validate()) {
+                            resetPassword(context, emailController.text.trim());
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.all(20.0),
