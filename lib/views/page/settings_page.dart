@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_lock/flutter_app_lock.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/data/notifiers.dart';
 import 'package:my_app/views/page/change_pw.dart';
@@ -631,6 +632,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 TextButton(
                   onPressed: () async {
                     await FirebaseAuth.instance.signOut();
+                    AppLock.of(context)?.disable();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (_) => LoginPage()),

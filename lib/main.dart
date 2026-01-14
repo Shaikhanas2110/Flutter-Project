@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_lock/flutter_app_lock.dart';
+import 'package:my_app/lock_screen.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/page/home_page.dart';
 import 'package:my_app/views/page/payment_page.dart';
@@ -14,10 +16,17 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const MyApp(),
+    AppLock(
+      initialBackgroundLockLatency: const Duration(seconds: 0),
+      lockScreen: LockScreen(),
+      builder: (context, child) {
+        return ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+          child: const MyApp(),
+        );
+      },
     ),
   );
 }
@@ -59,25 +68,33 @@ class _MyAppState extends State<MyApp> {
       theme: themeProvider.lightTheme,
       darkTheme: themeProvider.darkTheme,
       themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          // ⏳ Waiting for Firebase
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+      home: const AuthGate(),
+    );
+  }
+}
 
-          // Not logged in
-          if (!snapshot.hasData) {
-            return const WidgetTreeSecond();
-          }
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
 
-          // Logged in
-          return const HomeScreen();
-        },
-      ),
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          AppLock.of(context)?.disable();
+          return const WidgetTreeSecond();
+        }
+
+        AppLock.of(context)?.enable();
+        return const HomeScreen();
+      },
     );
   }
 }
