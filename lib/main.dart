@@ -18,15 +18,9 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
-    AppLock(
-      initialBackgroundLockLatency: const Duration(seconds: 0),
-      lockScreen: LockScreen(),
-      builder: (context, child) {
-        return ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
-          child: const MyApp(),
-        );
-      },
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
     ),
   );
 }
@@ -87,14 +81,20 @@ class AuthGate extends StatelessWidget {
           );
         }
 
+        // Not logged in → no lock
         if (!snapshot.hasData) {
-          AppLock.of(context)?.disable();
           return const WidgetTreeSecond();
         }
 
-        AppLock.of(context)?.enable();
-        return const HomeScreen();
+        // Logged in → AppLock wraps HomeScreen
+        return AppLock(
+          lockScreen: LockScreen(),
+          builder: (context, child) {
+            return const HomeScreen();
+          },
+        );
       },
     );
   }
 }
+
