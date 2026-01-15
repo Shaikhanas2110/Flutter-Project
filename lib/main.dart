@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_lock/flutter_app_lock.dart';
-import 'package:my_app/lock_screen.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/page/home_page.dart';
 import 'package:my_app/views/page/payment_page.dart';
+import 'package:my_app/views/page/pin_lock.dart';
 import 'package:my_app/views/page/report_page.dart';
 import 'package:my_app/views/page/settings_page.dart';
 import 'package:my_app/views/widget_tree_second.dart';
@@ -67,34 +66,47 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _pinUnlocked = false;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        // Loading
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // Not logged in → no lock
+        // Not logged in
         if (!snapshot.hasData) {
           return const WidgetTreeSecond();
         }
 
-        // Logged in → AppLock wraps HomeScreen
-        return AppLock(
-          lockScreen: LockScreen(),
-          builder: (context, child) {
-            return const HomeScreen();
-          },
-        );
+        // Logged in but PIN not unlocked
+        if (!_pinUnlocked) {
+          return PinLockScreen(
+            onUnlocked: () {
+              setState(() {
+                _pinUnlocked = true;
+              });
+            },
+          );
+        }
+
+        // Logged in + PIN unlocked
+        return const HomeScreen();
       },
     );
   }
 }
-
