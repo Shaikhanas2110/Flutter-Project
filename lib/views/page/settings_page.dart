@@ -19,6 +19,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  bool notifyUser = false;
   String username = "Loading...";
   final user = FirebaseAuth.instance.currentUser;
   late String email = user?.email ?? "no email";
@@ -47,10 +48,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> removePin() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('app_pin');
+  }
+
+  void loadNotificationStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if(user == null) return;
+
+    final ref = FirebaseDatabase.instance
+        .ref()
+        .child("users")
+        .child(user.uid)
+        .child("subscriptions");
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      setState(() {
+        notifyUser = snapshot.value as bool;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     fetchUsername();
+    loadNotificationStatus();
   }
 
   @override
@@ -215,7 +241,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
-                          Switch(value: false, onChanged: (value) {}),
+                          Switch(
+                            value: notifyUser,
+                            onChanged: (value) async {
+                              setState(() {
+                                notifyUser = value;
+                              });
+                              await FirebaseDatabase.instance
+                                  .ref(
+                                    "subscriptions/${FirebaseAuth.instance.currentUser!.uid}",
+                                  )
+                                  .update({"notify": value});
+                            },
+                          ),
                         ],
                       ),
                       SizedBox(height: 35),
@@ -642,6 +680,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => LoginPage()),
                     );
+                    removePin();
                     context.read<ThemeProvider>().refreshThemeForUser();
                   },
                   child: Row(

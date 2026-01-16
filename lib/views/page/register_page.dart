@@ -42,6 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
       await FirebaseDatabase.instance.ref().child("users").child(uid).set({
         "username": username,
         "email": email,
+        "notify": false,
       });
 
       // 3️⃣ Success → Navigate
