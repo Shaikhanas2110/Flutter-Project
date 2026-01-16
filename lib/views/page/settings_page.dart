@@ -54,14 +54,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void loadNotificationStatus() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if(user == null) return;
+    if (user == null) return;
 
     final ref = FirebaseDatabase.instance
         .ref()
         .child("users")
-        .child(user.uid)
-        .child("subscriptions");
+        .child(user!.uid)
+        .child("notify");
 
     final snapshot = await ref.get();
 
@@ -248,10 +247,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 notifyUser = value;
                               });
                               await FirebaseDatabase.instance
-                                  .ref(
-                                    "subscriptions/${FirebaseAuth.instance.currentUser!.uid}",
-                                  )
-                                  .update({"notify": value});
+                                  .ref("users/${user!.uid}")
+                                  .update({
+                                    "notify": notifyUser, // boolean only
+                                  });
                             },
                           ),
                         ],
