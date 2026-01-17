@@ -34,7 +34,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
 
     if (enteredPin.length == 4) {
       if (correctPin == null) {
-        _resetWithError('No PIN set');
+        widget.onUnlocked();
         return;
       }
 

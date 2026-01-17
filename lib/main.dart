@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/views/data/classes/notification_service.dart';
+import 'package:my_app/views/data/classes/subscription_notification_checker.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/page/home_page.dart';
 import 'package:my_app/views/page/payment_page.dart';
@@ -38,9 +39,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState() {
+  void initState()  {
     super.initState();
     _setHighRefreshRate();
+    SubscriptionNotificationChecker.checkExpiringSubscriptions();
+
   }
 
   Future<void> _setHighRefreshRate() async {
