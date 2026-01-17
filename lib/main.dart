@@ -1,4 +1,4 @@
-  import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/views/data/classes/notification_service.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
@@ -15,8 +15,12 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // ✅ Safe notification init (won't crash app now)
   await NotificationService.init();
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
