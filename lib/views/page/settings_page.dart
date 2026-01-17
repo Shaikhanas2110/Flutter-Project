@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_lock/flutter_app_lock.dart';
+import 'package:my_app/views/data/classes/subscription_notification_checker.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/data/notifiers.dart';
 import 'package:my_app/views/page/change_pw.dart';
+import 'package:my_app/views/page/create_pin.dart';
 import 'package:my_app/views/page/login_page.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../drawer/app_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -17,9 +20,15 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  bool notifyUser = false;
   String username = "Loading...";
   final user = FirebaseAuth.instance.currentUser;
   late String email = user?.email ?? "no email";
+
+  Future<void> savePin(String pin) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('app_pin', pin);
+  }
 
   Future<void> fetchUsername() async {
     if (user == null) return;
@@ -40,10 +49,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> removePin() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('app_pin');
+  }
+
+  void loadNotificationStatus() async {
+    if (user == null) return;
+
+    final ref = FirebaseDatabase.instance
+        .ref()
+        .child("users")
+        .child(user!.uid)
+        .child("notify");
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      setState(() {
+        notifyUser = snapshot.value as bool;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     fetchUsername();
+    loadNotificationStatus();
   }
 
   @override
@@ -208,7 +241,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
-                          Switch(value: false, onChanged: (value) {}),
+                          Switch(
+                            value: notifyUser,
+                            onChanged: (value) async {
+                              setState(() {
+                                notifyUser = value;
+                              });
+                              await FirebaseDatabase.instance
+                                  .ref("users/${user!.uid}")
+                                  .update({
+                                    "notify": notifyUser, // boolean only
+                                  });
+                            },
+                          ),
                         ],
                       ),
                       SizedBox(height: 35),
@@ -394,37 +439,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
-                              SizedBox(width: 15),
+                              // SizedBox(width: 15),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Biometric Lock',
-                                    style: TextStyle(
-                                      color: Theme.of(
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
                                         context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Use Face ID to unlock',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.color,
-                                      fontSize: 13,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return CreatePinScreen();
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'Set Pin To Unlock App',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge?.color,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ],
-                          ),
-                          Switch(
-                            value: true,
-                            onChanged: (value) {},
-                            activeTrackColor: Colors.blueAccent,
                           ),
                         ],
                       ),
@@ -637,7 +680,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => LoginPage()),
                     );
+                    removePin();
                     context.read<ThemeProvider>().refreshThemeForUser();
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout_outlined,
+                        color: Colors.redAccent,
+                        size: 20,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.redAccent, fontSize: 20),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 24),
+                TextButton(
+                  onPressed: () {
+                    SubscriptionNotificationChecker.checkExpiringSubscriptions();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Notification sent!!')),
+                    );
                   },
                   child: Row(
                     children: [
