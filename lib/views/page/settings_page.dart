@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_lock/flutter_app_lock.dart';
+import 'package:my_app/views/data/classes/subscription_notification_checker.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/data/notifiers.dart';
 import 'package:my_app/views/page/change_pw.dart';
@@ -681,6 +682,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                     removePin();
                     context.read<ThemeProvider>().refreshThemeForUser();
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout_outlined,
+                        color: Colors.redAccent,
+                        size: 20,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.redAccent, fontSize: 20),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 24),
+                TextButton(
+                  onPressed: () {
+                    SubscriptionNotificationChecker.checkExpiringSubscriptions();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Notification sent!!')),
+                    );
                   },
                   child: Row(
                     children: [
