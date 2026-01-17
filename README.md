@@ -57,16 +57,16 @@ A modern **Subscription Tracker mobile application** built using **Flutter** tha
 ---
 
 ## 📂 Project Structure
-lib/
-├── main.dart
-├── models/
-├── services/
-├── views/
-│ ├── auth/
-│ ├── home/
-│ └── subscriptions/
-├── widgets/
-└── utils/
+lib/<br>
+├── main.dart<br>
+├── models/<br>
+├── services/<br>
+├── views/<br>
+│   ├── auth/<br>
+│   ├── home/<br>
+│   └── subscriptions/<br>
+├── widgets/<br>
+└── utils/<br>
 
 ## ⚙️ Setup & Installation
 
@@ -134,4 +134,4 @@ This project is licensed under the **MIT License**.
 Flutter & MERN Stack Developer  
 
 📧 Email: shaikhanas2354@gmail.com  
-🌐 GitHub: https://github.com/Shaikhanas2110/
+🌐 LinkedIn: https://linkedin.com/in/anas-shaikh-24999a2a8
