@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_lock/flutter_app_lock.dart';
-import 'package:my_app/views/data/classes/notification_service.dart';
-import 'package:my_app/views/data/classes/subscription_notification_checker.dart';
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/data/notifiers.dart';
 import 'package:my_app/views/page/change_pw.dart';
+import 'package:my_app/views/page/contact_page.dart';
 import 'package:my_app/views/page/create_pin.dart';
 import 'package:my_app/views/page/login_page.dart';
 import 'package:provider/provider.dart';
@@ -183,7 +182,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
-
                 SizedBox(height: 24),
                 Text(
                   'Preferences '.toUpperCase(),
@@ -305,55 +303,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onChanged: (val) {
                               context.read<ThemeProvider>().toggleTheme(val);
                             },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 35),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.language_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Language',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'English',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.color,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              items: List.empty(),
-                              onChanged: (value) {},
-                              icon: Icon(Icons.arrow_forward_ios_outlined),
-                            ),
                           ),
                         ],
                       ),
@@ -642,30 +591,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ).textTheme.bodyMedium?.color,
                                 size: 30,
                               ),
-                              SizedBox(width: 15),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Contact Support',
-                                    style: TextStyle(
-                                      color: Theme.of(
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
                                         context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return ContactPage();
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'Contact Support',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge?.color,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ],
-                          ),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              items: List.empty(),
-                              onChanged: (value) {},
-                              icon: Icon(Icons.arrow_forward_ios_outlined),
-                            ),
                           ),
                         ],
                       ),
@@ -701,7 +654,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SizedBox(height: 24),
-],
+              ],
             ),
           ),
         ),
