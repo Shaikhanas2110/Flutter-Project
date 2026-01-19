@@ -93,43 +93,37 @@ class HomeScreenState extends State<HomeScreen> {
 
 
   List<Subscription> get filteredSubscriptions {
-    List<Subscription> list = [...subscriptions];
-
+    final DateTime today = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
+    List<Subscription> list = subscriptions.where((s) {
+      if(s.nextPaymentDate == null) return true;
+      return !s.nextPaymentDate!.isBefore(today);
+    }).toList();
+  
     switch (activeFilter) {
+      case SubscriptionFilter.past:
+        list = subscriptions.where((s) {
+          return s.nextPaymentDate != null && s.nextPaymentDate!.isBefore(today);
+        }).toList();
+        break;
+      
       case SubscriptionFilter.priceLowToHigh:
-        list.sort((a, b) => a.cost.compareTo(b.cost));
+        list.sort((a,b) => a.cost.compareTo(b.cost));
         break;
 
       case SubscriptionFilter.priceHighToLow:
-        list.sort((a, b) => b.cost.compareTo(a.cost));
+        list.sort((a,b) => b.cost.compareTo(a.cost));
         break;
 
       case SubscriptionFilter.nameAToZ:
-        list.sort((a, b) => a.serviceName.compareTo(b.serviceName));
+        list.sort((a,b) => a.serviceName.compareTo(b.serviceName));
         break;
 
       case SubscriptionFilter.nameZToA:
-        list.sort((a, b) => b.serviceName.compareTo(a.serviceName));
+        list.sort((a,b) => b.serviceName.compareTo(a.serviceName));
         break;
 
       case SubscriptionFilter.upcoming:
-        list = list
-            .where(
-              (s) =>
-                  s.nextPaymentDate != null &&
-                  s.nextPaymentDate!.isAfter(DateTime.now()),
-            )
-            .toList();
-        break;
-
-      case SubscriptionFilter.past:
-        list = list
-            .where(
-              (s) =>
-                  s.nextPaymentDate != null &&
-                  s.nextPaymentDate!.isBefore(DateTime.now()),
-            )
-            .toList();
+        //Handle By Default
         break;
 
       default:
