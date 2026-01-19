@@ -71,6 +71,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final maxY = calculateMaxY(monthlyTotals);
     final categoryData = calculateCategorySpending(subscriptions);
     final total = getTotalSpending(categoryData);
+    final thisMonthCost = getThisMonthSpending(subscriptions);
+    final lastMonthCost = getLastMonthSpending(subscriptions);
+    final difference = thisMonthCost - lastMonthCost;
+    final percentageChange = lastMonthCost == 0
+        ? 0
+        : (difference / lastMonthCost) * 100;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -129,10 +135,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           Icons.trending_up,
                           color: Theme.of(context).textTheme.bodyMedium?.color,
                         ),
-                        title: '+8.2% from last month',
-                        value: '\$142.4',
-                        color: Color(0xFF16a34a),
+                        title: percentageChange >= 0
+                            ? '+${percentageChange.toStringAsFixed(1)}% from last month'
+                            : '${percentageChange.toStringAsFixed(1)}% from last month',
+                        value: '₹${thisMonthCost.toStringAsFixed(0)}',
+                        color: percentageChange >= 0
+                            ? Color(0xFF16a34a)
+                            : Colors.redAccent,
                         boxColor: Color(0xFFdcfce7),
+                        subTitle: "THIS MONTH",
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -140,13 +151,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: summaryCard(
                         context,
                         icon: Icon(
-                          Icons.trending_down,
+                          Icons.history,
                           color: Theme.of(context).textTheme.bodyMedium?.color,
                         ),
-                        title: '+8.2% from last month',
-                        value: '\$142.4',
-                        color: Color(0xFF16a34a),
-                        boxColor: Color(0xFFdcfce7),
+                        title: 'Last month spending',
+                        value: '₹${lastMonthCost.toStringAsFixed(0)}',
+                        color: Colors.blueAccent,
+                        boxColor: Color(0xFFdbeafe),
+                        subTitle: "LAST MONTH"
                       ),
                     ),
                   ],
@@ -282,6 +294,7 @@ Widget summaryCard(
   required String value,
   required Color color,
   required Color boxColor,
+  required String subTitle,
 }) {
   return Container(
     padding: const EdgeInsets.all(16),
@@ -295,7 +308,7 @@ Widget summaryCard(
         Row(
           children: [
             Text(
-              'THIS MONTH',
+              subTitle,
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
                 fontWeight: FontWeight.bold,
@@ -458,4 +471,33 @@ Widget categoryRow(
       ],
     ),
   );
+}
+
+double getThisMonthSpending(List<Subscription> subs) {
+  final now = DateTime.now();
+
+  return subs
+      .where((sub) {
+        if (sub.nextPaymentDate == null) return false;
+
+        final d = sub.nextPaymentDate!;
+        return d.month == now.month && d.year == now.year;
+      })
+      .fold(0.0, (sum, sub) => sum + sub.cost);
+}
+
+double getLastMonthSpending(List<Subscription> subs) {
+  final now = DateTime.now();
+
+  final lastMonth = now.month == 1 ? 12 : now.month - 1;
+  final year = now.month == 1 ? now.year - 1 : now.year;
+
+  return subs
+      .where((sub) {
+        if (sub.nextPaymentDate == null) return false;
+
+        final d = sub.nextPaymentDate!;
+        return d.month == lastMonth && d.year == year;
+      })
+      .fold(0.0, (sum, sub) => sum + sub.cost);
 }
