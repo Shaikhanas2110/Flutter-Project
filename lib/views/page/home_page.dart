@@ -16,6 +16,15 @@ List<Subscription> subscriptions = [];
 bool isLoading = true;
 int nearestPaymentDays = -1;
 
+enum SubscriptionFilter {
+  priceLowToHigh,
+  priceHighToLow,
+  nameAToZ,
+  nameZToA,
+  upcoming,
+  past,
+}
+
 class HomeScreenState extends State<HomeScreen> {
   Future<void> fetchSubscriptions() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -78,6 +87,138 @@ class HomeScreenState extends State<HomeScreen> {
         isLoading = false;
       });
     }
+  }
+
+  SubscriptionFilter? activeFilter;
+
+
+  List<Subscription> get filteredSubscriptions {
+    List<Subscription> list = [...subscriptions];
+
+    switch (activeFilter) {
+      case SubscriptionFilter.priceLowToHigh:
+        list.sort((a, b) => a.cost.compareTo(b.cost));
+        break;
+
+      case SubscriptionFilter.priceHighToLow:
+        list.sort((a, b) => b.cost.compareTo(a.cost));
+        break;
+
+      case SubscriptionFilter.nameAToZ:
+        list.sort((a, b) => a.serviceName.compareTo(b.serviceName));
+        break;
+
+      case SubscriptionFilter.nameZToA:
+        list.sort((a, b) => b.serviceName.compareTo(a.serviceName));
+        break;
+
+      case SubscriptionFilter.upcoming:
+        list = list
+            .where(
+              (s) =>
+                  s.nextPaymentDate != null &&
+                  s.nextPaymentDate!.isAfter(DateTime.now()),
+            )
+            .toList();
+        break;
+
+      case SubscriptionFilter.past:
+        list = list
+            .where(
+              (s) =>
+                  s.nextPaymentDate != null &&
+                  s.nextPaymentDate!.isBefore(DateTime.now()),
+            )
+            .toList();
+        break;
+
+      default:
+        break;
+    }
+
+    return list;
+  }
+
+  void _showFilterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _filterTile("Price: Low → High", SubscriptionFilter.priceLowToHigh),
+            _filterTile("Price: High → Low", SubscriptionFilter.priceHighToLow),
+            _filterTile("Name: A → Z", SubscriptionFilter.nameAToZ),
+            _filterTile("Name: Z → A", SubscriptionFilter.nameZToA),
+            _filterTile("Upcoming Payments", SubscriptionFilter.upcoming),
+            _filterTile("Past Subscriptions", SubscriptionFilter.past),
+            ListTile(
+              leading: Icon(Icons.clear),
+              title: Text("Clear Filter"),
+              onTap: () {
+                setState(() => activeFilter = null);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _filterTile(String title, SubscriptionFilter filter) {
+    return ListTile(
+      title: Text(title),
+      trailing: activeFilter == filter
+          ? Icon(Icons.check, color: Colors.blue)
+          : null,
+      onTap: () {
+        setState(() => activeFilter = filter);
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  Widget buildSubscriptionsList(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // ✅ THIS IS THE KEY LINE
+    final list = filteredSubscriptions;
+
+    if (list.isEmpty) {
+      return Center(
+        child: Text(
+          "No subscriptions found",
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: list.length, // ✅ USE FILTERED LIST LENGTH
+      itemBuilder: (context, index) {
+        final sub = list[index]; // ✅ USE FILTERED LIST ITEM
+
+        return subscriptionTile(
+          context,
+          sub.serviceName,
+          sub.billingCycle,
+          "₹${sub.cost.toStringAsFixed(0)}",
+          _categoryColor(sub.category),
+          sub.category,
+        );
+      },
+    );
   }
 
   @override
@@ -254,12 +395,21 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
 
                 SizedBox(height: 24),
-                Text(
-                  'Subscriptions',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Subscriptions',
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.filter_list),
+                      onPressed: () => _showFilterSheet(context),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 16),
 
@@ -338,42 +488,6 @@ Widget summaryCard(
         ),
         const SizedBox(height: 12),
       ],
-    ),
-  );
-}
-
-Widget buildSubscriptionsList(BuildContext context) {
-  if (isLoading) {
-    return const Center(child: CircularProgressIndicator());
-  }
-
-  if (subscriptions.isEmpty) {
-    return Center(
-      child: Text(
-        "No subscriptions added",
-        style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
-      ),
-    );
-  }
-
-  return Container(
-    decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
-    child: ListView.builder(
-      shrinkWrap: true, // ✅ VERY IMPORTANT
-      physics: const NeverScrollableScrollPhysics(), // ✅ Prevent conflict
-      itemCount: subscriptions.length,
-      itemBuilder: (context, index) {
-        final sub = subscriptions[index];
-
-        return subscriptionTile(
-          context,
-          sub.serviceName,
-          sub.billingCycle,
-          "₹${sub.cost.toStringAsFixed(0)}",
-          _categoryColor(sub.category),
-          sub.category,
-        );
-      },
     ),
   );
 }
