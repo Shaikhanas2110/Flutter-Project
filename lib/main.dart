@@ -19,7 +19,6 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // ✅ Safe notification init (won't crash app now)
   await NotificationService.init();
 
   runApp(
@@ -39,11 +38,10 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     _setHighRefreshRate();
     SubscriptionNotificationChecker.checkExpiringSubscriptions();
-
   }
 
   Future<void> _setHighRefreshRate() async {
@@ -110,6 +108,11 @@ class _AuthGateState extends State<AuthGate> {
               });
             },
           );
+        }
+
+        // Logged in but PIN not unlocked
+        if (!_pinUnlocked && !snapshot.hasData) {
+          return HomeScreen();
         }
 
         // Logged in + PIN unlocked
