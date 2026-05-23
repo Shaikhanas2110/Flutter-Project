@@ -115,7 +115,7 @@ class _AuthGateState extends State<AuthGate> {
           return HomeScreen();
         }
 
-        // Logged in + PIN unlocked
+
         return const HomeScreen();
       },
     );
