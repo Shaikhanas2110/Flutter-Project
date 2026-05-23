@@ -8,7 +8,6 @@ class NotificationService {
 
   static Future<void> init() async {
     try {
-      // ✅ SAFE timezone init
       tz.initializeTimeZones();
 
       const androidSettings = AndroidInitializationSettings(
@@ -19,14 +18,12 @@ class NotificationService {
 
       await _notifications.initialize(initSettings);
 
-      // ✅ Android 13+ permission
       await _notifications
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >()
           ?.requestNotificationsPermission();
     } catch (e) {
-      // 🔥 THIS PREVENTS APP FROM CRASHING
       debugPrint("Notification init error: $e");
     }
   }

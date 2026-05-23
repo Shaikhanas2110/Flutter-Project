@@ -6,12 +6,12 @@ import 'package:my_app/views/page/settings_page.dart';
 import 'drawer_item.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 enum DrawerPage { subscriptions, payments, reports, settings }
 
 class AppDrawer extends StatefulWidget {
   final DrawerPage currentPage;
-
   const AppDrawer({super.key, required this.currentPage});
 
   @override
@@ -19,11 +19,21 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  String username = "Loading...";
+  static const Color _bg = Color(0xFF0B0F1A);
+  static const Color _indigo = Color(0xFF6366F1);
+  static const Color _cyan = Color(0xFF06B6D4);
 
-  Future<void> fetchUsername() async {
+  String username = "";
+  String email = "";
+
+  Future<void> fetchUserInfo() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+
+    // Grab email from Auth directly
+    setState(() {
+      email = user.email ?? "";
+    });
 
     final ref = FirebaseDatabase.instance
         .ref()
@@ -32,156 +42,198 @@ class _AppDrawerState extends State<AppDrawer> {
         .child("username");
 
     final snapshot = await ref.get();
+    setState(() {
+      username = snapshot.exists ? snapshot.value.toString() : "User";
+    });
+  }
 
-    if (snapshot.exists) {
-      setState(() {
-        username = snapshot.value.toString();
-      });
-    } else {
-      setState(() {
-        username = "User";
-      });
+  String get _initials {
+    if (username.isEmpty) return "U";
+    final parts = username.trim().split(" ");
+    if (parts.length >= 2) {
+      return "${parts[0][0]}${parts[1][0]}".toUpperCase();
     }
+    return username[0].toUpperCase();
+  }
+
+  void _navigate(BuildContext context, Widget page) {
+    Navigator.pop(context);
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        transitionsBuilder: (_, __, ___, child) => child,
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    fetchUsername();
+    fetchUserInfo();
   }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      child: Container(
-        padding: EdgeInsets.only(top: 10.0),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).scaffoldBackgroundColor,
-              Theme.of(context).scaffoldBackgroundColor,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              DrawerItem(
-                icon: Icons.subscriptions,
-                title: 'Subscriptions',
-                isSelected: widget.currentPage == DrawerPage.subscriptions,
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          HomeScreen(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            return child; // no animation
-                          },
+      backgroundColor: _bg,
+      width: 280,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Logo header ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [_indigo, _cyan],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(9),
                     ),
-                  );
-                },
-              ),
-
-              DrawerItem(
-                icon: Icons.payment,
-                title: 'Payments',
-                isSelected: widget.currentPage == DrawerPage.payments,
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          PaymentScreen(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            return child; // no animation
-                          },
+                    child: const Icon(
+                      Icons.donut_small_rounded,
+                      color: Colors.white,
+                      size: 18,
                     ),
-                  );
-                },
-              ),
-
-              DrawerItem(
-                icon: Icons.bar_chart,
-                title: 'Reports',
-                isSelected: widget.currentPage == DrawerPage.reports,
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          ReportsScreen(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            return child; // no animation
-                          },
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Substrata',
+                    style: GoogleFonts.dmSerifDisplay(
+                      fontSize: 18,
+                      color: Colors.white,
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
+            ),
 
-              DrawerItem(
-                icon: Icons.settings,
-                title: 'Settings',
-                isSelected: widget.currentPage == DrawerPage.settings,
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          SettingsScreen(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            return child; // no animation
-                          },
-                    ),
-                  );
-                },
+            // ── Section label ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: Text(
+                'MENU',
+                style: GoogleFonts.dmSans(
+                  fontSize: 10,
+                  letterSpacing: 1.8,
+                  color: Colors.white.withOpacity(0.25),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const Spacer(),
-              const Divider(color: Color(0xFF1f1f1f)),
+            ),
 
-              /// USER INFO (BOTTOM)
-              Padding(
-                padding: const EdgeInsets.all(16),
+            // ── Nav items ──
+            DrawerItem(
+              icon: Icons.grid_view_rounded,
+              label: 'Subscriptions',
+              isSelected: widget.currentPage == DrawerPage.subscriptions,
+              onTap: () => _navigate(context, HomeScreen()),
+            ),
+            DrawerItem(
+              icon: Icons.receipt_long_outlined,
+              label: 'Payments',
+              isSelected: widget.currentPage == DrawerPage.payments,
+              onTap: () => _navigate(context, PaymentScreen()),
+            ),
+            DrawerItem(
+              icon: Icons.bar_chart_rounded,
+              label: 'Reports',
+              isSelected: widget.currentPage == DrawerPage.reports,
+              onTap: () => _navigate(context, ReportsScreen()),
+            ),
+            DrawerItem(
+              icon: Icons.tune_rounded,
+              label: 'Settings',
+              isSelected: widget.currentPage == DrawerPage.settings,
+              onTap: () => _navigate(context, SettingsScreen()),
+            ),
+
+            const Spacer(),
+
+            // ── Divider ──
+            Container(
+              height: 1,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              color: Colors.white.withOpacity(0.07),
+            ),
+
+            const SizedBox(height: 16),
+
+            // ── User card ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.04),
+                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.blueAccent,
-                      child: Icon(
-                        Icons.person,
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                    // Avatar
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [_indigo, _cyan],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _initials,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      username.isNotEmpty ? username : "U",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            username.isEmpty ? "User" : username,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (email.isNotEmpty)
+                            Text(
+                              email,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 11,
+                                color: Colors.white.withOpacity(0.35),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
