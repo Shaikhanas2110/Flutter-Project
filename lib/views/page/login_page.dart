@@ -25,14 +25,10 @@ class _LoginPageState extends State<LoginPage> {
   // Brand colors
   static const Color _bg = Color(0xFF0B0F1A);
   static const Color _surface = Color(0xFF0F1424);
-  static const Color _card = Color(0xFF161D2F);
   static const Color _indigo = Color(0xFF6366F1);
   static const Color _cyan = Color(0xFF06B6D4);
   static const Color _indigoLight = Color(0xFF818CF8);
   static const Color _amber = Color(0xFFF59E0B);
-  static const Color _textMuted = Color(0x66FFFFFF);
-  static const Color _textDim = Color(0x3DFFFFFF);
-  static const Color _border = Color(0x1AFFFFFF);
 
   String hashPassword(String password) {
     return sha256.convert(utf8.encode(password)).toString();
@@ -390,7 +386,7 @@ class _LoginPageState extends State<LoginPage> {
           _buildSubPill(
             name: '+ 9 more subscriptions',
             amount: '₹4,800',
-            dot: Colors.white.withOpacity(0.2),
+            dot: const Color.fromRGBO(255, 255, 255, 0.2),
             faded: true,
           ),
 
@@ -469,7 +465,7 @@ class _LoginPageState extends State<LoginPage> {
               'to your Substrata account',
               style: GoogleFonts.dmSans(
                 fontSize: 13,
-                color: Colors.white.withOpacity(0.38),
+                color: const Color.fromRGBO(255, 255, 255, 0.38),
               ),
             ),
             const SizedBox(height: 32),
@@ -484,8 +480,9 @@ class _LoginPageState extends State<LoginPage> {
                 if (value == null || value.isEmpty) return 'Email is required';
                 if (!RegExp(
                   r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                ).hasMatch(value))
+                ).hasMatch(value)) {
                   return 'Enter a valid email';
+                }
                 return null;
               },
             ),
@@ -499,10 +496,12 @@ class _LoginPageState extends State<LoginPage> {
               isPassword: true,
               onSaved: (v) => password = v!,
               validator: (value) {
-                if (value == null || value.isEmpty)
+                if (value == null || value.isEmpty) {
                   return 'Password is required';
-                if (value.length < 6)
+                }
+                if (value.length < 6) {
                   return 'Password must be at least 6 characters';
+                }
                 return null;
               },
             ),
@@ -522,7 +521,7 @@ class _LoginPageState extends State<LoginPage> {
                   'Forgot password?',
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
-                    color: _indigo.withOpacity(0.8),
+                    color: _indigo.withValues(alpha: 0.8),
                   ),
                 ),
               ),
@@ -575,7 +574,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 Expanded(
                   child: Divider(
-                    color: Colors.white.withOpacity(0.07),
+                    color: Colors.white.withValues(alpha: 0.07),
                     thickness: 1,
                   ),
                 ),
@@ -585,13 +584,13 @@ class _LoginPageState extends State<LoginPage> {
                     'or continue with',
                     style: GoogleFonts.dmSans(
                       fontSize: 12,
-                      color: Colors.white.withOpacity(0.25),
+                      color: Colors.white.withValues(alpha: 0.25),
                     ),
                   ),
                 ),
                 Expanded(
                   child: Divider(
-                    color: Colors.white.withOpacity(0.07),
+                    color: Colors.white.withValues(alpha: 0.07),
                     thickness: 1,
                   ),
                 ),
@@ -614,19 +613,19 @@ class _LoginPageState extends State<LoginPage> {
                   'Continue with Google',
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 13),
                   side: BorderSide(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  backgroundColor: Colors.white.withOpacity(0.04),
+                  backgroundColor: Colors.white.withValues(alpha: 0.04),
                 ),
               ),
             ),
@@ -648,7 +647,7 @@ class _LoginPageState extends State<LoginPage> {
                       TextSpan(
                         text: "New here? ",
                         style: GoogleFonts.dmSans(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           fontSize: 13,
                         ),
                       ),

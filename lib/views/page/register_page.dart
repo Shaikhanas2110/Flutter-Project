@@ -26,10 +26,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // Brand colors
   static const Color _bg = Color(0xFF0B0F1A);
-  static const Color _surface = Color(0xFF0F1424);
   static const Color _indigo = Color(0xFF6366F1);
   static const Color _cyan = Color(0xFF06B6D4);
-  static const Color _indigoLight = Color(0xFF818CF8);
   static const Color _errorRed = Color(0xFFE24B4A);
 
   String hashPassword(String password) {
@@ -259,7 +257,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Substrata',
+                      'SubTracker',
                       style: GoogleFonts.dmSerifDisplay(
                         fontSize: 18,
                         color: Colors.white,

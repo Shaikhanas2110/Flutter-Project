@@ -1,127 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ContactPage extends StatelessWidget {
   const ContactPage({super.key});
 
+  // ── Brand colors (Matched from ReportsScreen & SettingsScreen) ──
+  static const Color _bg = Color(0xFF0B0F1A);
+  static const Color _card = Color(0xFF131929);
+  static const Color _indigo = Color(0xFF6366F1);
+  static const Color _cyan = Color(0xFF06B6D4);
+  static const Color _border = Color(0x1AFFFFFF);
+  static const Color _green = Color(0xFF22C55E);
+  static const Color _amber = Color(0xFFF59E0B);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: _bg,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
+        backgroundColor: _bg,
         elevation: 0,
-        scrolledUnderElevation: 2,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: true,
         surfaceTintColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.white.withOpacity(0.6)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: Color(0xFF1f1f1f)),
+          child: Container(height: 1, color: Colors.white.withOpacity(0.06)),
         ),
-        automaticallyImplyLeading: true,
         title: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.wallet_rounded, size: 35, color: Colors.blueAccent),
-            SizedBox(width: 10),
-            Text('SubTracker', style: TextStyle(fontWeight: FontWeight.bold)),
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [_indigo, _cyan],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.wallet_rounded,
+                color: Colors.white,
+                size: 17,
+              ),
+            ),
+            const SizedBox(width: 9),
+            Text(
+              'Substrata',
+              style: GoogleFonts.dmSerifDisplay(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
           ],
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        "Get In Touch",
-                        style: TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      Text(
-                        "Have questions or feedback? We'd love to hear from you",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).textTheme.bodyMedium?.color,
-                        ),
-                      ),
-                    ],
-                  ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Page Heading ──
+              Text(
+                'Contact Support',
+                style: GoogleFonts.dmSerifDisplay(
+                  fontSize: 26,
+                  color: Colors.white,
                 ),
-                SizedBox(height: 20),
-                summaryCard(
-                  context,
-                  icon: Icon(
-                    Icons.email_outlined,
-                    color: Colors.white,
-                    size: 35,
-                  ),
-                  title: 'support@subtracker.com',
-                  value: Text(
-                    "Email",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                  color: Color(0xFF16a34a),
-                  boxColor: Color(0xFFdcfce7),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Have questions or feedback? We'd love to hear from you",
+                style: GoogleFonts.dmSans(
+                  fontSize: 13,
+                  color: Colors.white.withOpacity(0.35),
                 ),
-                SizedBox(height: 20),
-                summaryCard(
-                  context,
-                  icon: Icon(
-                    Icons.phone_outlined,
-                    color: Colors.white,
-                    size: 35,
-                  ),
-                  title: '+91 9265-88-6444',
-                  value: Text(
-                    "Phone",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                  color: Colors.purpleAccent,
-                  boxColor: Color(0xFFdcfce7),
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── Support Channels ──
+              summaryCard(
+                context,
+                icon: const Icon(Icons.email_outlined, color: _green, size: 24),
+                title: 'support@subtracker.com',
+                value: 'Email',
+                iconBgColor: _green.withOpacity(0.1),
+              ),
+
+              const SizedBox(height: 14),
+
+              summaryCard(
+                context,
+                icon: const Icon(
+                  Icons.phone_outlined,
+                  color: _indigo,
+                  size: 24,
                 ),
-                SizedBox(height: 20),
-                summaryCard(
-                  context,
-                  icon: Icon(
-                    Icons.location_on_outlined,
-                    color: Colors.white,
-                    size: 35,
-                  ),
-                  title: 'Ahmedabad',
-                  value: Text(
-                    "Office",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                  color: Colors.orangeAccent,
-                  boxColor: Color(0xFFdcfce7),
+                title: '+91 9265-88-6444',
+                value: 'Phone',
+                iconBgColor: _indigo.withOpacity(0.1),
+              ),
+
+              const SizedBox(height: 14),
+
+              summaryCard(
+                context,
+                icon: const Icon(
+                  Icons.location_on_outlined,
+                  color: _amber,
+                  size: 24,
                 ),
-              ],
-            ),
+                title: 'Ahmedabad',
+                value: 'Office',
+                iconBgColor: _amber.withOpacity(0.1),
+              ),
+            ],
           ),
         ),
       ),
@@ -129,43 +127,66 @@ class ContactPage extends StatelessWidget {
   }
 }
 
+// ── Redesigned Card Component ───────────────────────────────────────────────
+
 Widget summaryCard(
   BuildContext context, {
   required Icon icon,
   required String title,
-  required Widget value,
-  required Color color,
-  required Color boxColor,
+  required String value,
+  required Color iconBgColor,
 }) {
+  const Color cardColor = Color(0xFF131929);
+  const Color borderColor = Color(0x1AFFFFFF);
+
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Theme.of(context).cardColor,
+      color: cardColor,
+      border: Border.all(color: borderColor),
       borderRadius: BorderRadius.circular(16),
     ),
-    child: Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon.icon, color: icon.color, size: icon.size),
+    child: Row(
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: iconBgColor,
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 12),
-          value,
-          Text(
-            title,
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium?.color,
-            ),
+          child: Icon(icon.icon, color: icon.color, size: icon.size),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: GoogleFonts.dmSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                title,
+                style: GoogleFonts.dmSans(
+                  fontSize: 13,
+                  color: Colors.white.withOpacity(0.4),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-        ],
-      ),
+        ),
+        Icon(
+          Icons.arrow_forward_ios_rounded,
+          color: Colors.white.withOpacity(0.15),
+          size: 14,
+        ),
+      ],
     ),
   );
 }

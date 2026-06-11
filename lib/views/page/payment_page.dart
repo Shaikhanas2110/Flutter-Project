@@ -4,6 +4,7 @@ import 'package:my_app/views/data/classes/subscriptions.dart';
 import '../drawer/app_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -16,6 +17,16 @@ List<Subscription> subscriptions = [];
 bool isLoading = true;
 
 class _PaymentScreenState extends State<PaymentScreen> {
+  // ── Brand colors ──
+  static const Color _bg = Color(0xFF0B0F1A);
+  static const Color _card = Color(0xFF131929);
+  static const Color _indigo = Color(0xFF6366F1);
+  static const Color _cyan = Color(0xFF06B6D4);
+  static const Color _indigoLight = Color(0xFF818CF8);
+  static const Color _border = Color(0x1AFFFFFF);
+  static const Color _errorRed = Color(0xFFE24B4A);
+  static const Color _amber = Color(0xFFF59E0B);
+
   Future<void> fetchSubscriptions() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -30,14 +41,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     if (snapshot.exists) {
       final Map data = snapshot.value as Map;
-
       final List<Subscription> loadedSubs = [];
 
       data.forEach((key, value) {
         DateTime? parsedDate;
-
         final rawDate = value["nextPaymentDate"];
-
         if (rawDate != null && rawDate is String && rawDate.isNotEmpty) {
           try {
             parsedDate = DateTime.parse(rawDate);
@@ -45,7 +53,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             debugPrint("Invalid date for $key → $rawDate");
           }
         }
-
         loadedSubs.add(
           Subscription(
             id: key,
@@ -53,14 +60,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
             billingCycle: value["billingCycle"] ?? "",
             cost: (value["cost"] as num).toDouble(),
             category: value["category"] ?? "",
-            nextPaymentDate: parsedDate, // ✅ SAFE
+            nextPaymentDate: parsedDate,
           ),
         );
       });
 
       setState(() {
         subscriptions = loadedSubs;
-
         isLoading = false;
       });
     } else {
@@ -77,308 +83,404 @@ class _PaymentScreenState extends State<PaymentScreen> {
     fetchSubscriptions();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final buckets = splitSubscriptionsByDate(subscriptions);
-    final thisWeekSubs = buckets.thisWeek;
-    final thisMonthSubs = buckets.thisMonth;
-    final nextMonthSubs = buckets.nextMonth;
-    final totalThisMonth = totalDueThisMonth(subscriptions);
+  // ── Urgency color for payment date ──
+  Color _dateColor(DateTime date) {
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+    final days = date.difference(today).inDays;
+    if (days == 0) return _errorRed;
+    if (days <= 3) return _errorRed;
+    if (days <= 7) return _amber;
+    return Colors.white.withOpacity(0.3);
+  }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+  String _dateLabel(DateTime date) {
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+    final days = date.difference(today).inDays;
+    if (days == 0) return 'Today';
+    if (days == 1) return 'Tomorrow';
+    if (days <= 7) return 'In $days days';
+    return '${date.day}/${date.month}/${date.year}';
+  }
 
-      appBar: AppBar(
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, size: 35),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+  // ── Section header ──
+  Widget _sectionHeader(String title, {String? count}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.dmSerifDisplay(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+          if (count != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: _indigo.withOpacity(0.12),
+                border: Border.all(color: _indigo.withOpacity(0.3)),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                count,
+                style: GoogleFonts.dmSans(
+                  fontSize: 11,
+                  color: _indigoLight,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ── Empty state ──
+  Widget _emptyState(String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.02),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.06),
+          style: BorderStyle.solid,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.check_circle_outline_rounded,
+            size: 24,
+            color: Colors.white.withOpacity(0.15),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: GoogleFonts.dmSans(
+              fontSize: 13,
+              color: Colors.white.withOpacity(0.25),
             ),
           ),
         ],
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
-        elevation: 0,
-        scrolledUnderElevation: 2,
-        surfaceTintColor: Colors.transparent,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: Color(0xFF1f1f1f)),
-        ),
-        automaticallyImplyLeading: false,
-        title: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(Icons.wallet_rounded, size: 35, color: Colors.blueAccent),
-            SizedBox(width: 10),
-            Text('SubTracker', style: TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
       ),
+    );
+  }
 
-      drawer: const AppDrawer(currentPage: DrawerPage.payments),
+  // ── Payment tile ──
+  Widget _paymentTile(Subscription sub) {
+    final color = _categoryColor(sub.category);
+    final icon = _iconForCategory(sub.category);
+    final date = sub.nextPaymentDate;
 
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).scaffoldBackgroundColor,
-              Theme.of(context).scaffoldBackgroundColor,
-            ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      decoration: BoxDecoration(
+        color: _card,
+        border: Border.all(color: _border),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          // Icon
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, color: color, size: 18),
           ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
+          const SizedBox(width: 12),
+
+          // Name + category
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //----------------SUMMARY CARD-----------------
+                Text(
+                  sub.serviceName,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 3),
                 Row(
                   children: [
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).scaffoldBackgroundColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                Icons.timer,
-                                color: Colors.red,
-                                size: 35,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.currency_rupee,
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodyLarge?.color,
-                                  size: 26,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                Text(
-                                  "${totalThisMonth.toStringAsFixed(0)}",
-                                  style: TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(
-                                      context,
-                                    ).textTheme.bodyLarge?.color,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            Text(
-                              'due this month',
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                              ),
-                            ),
-                          ],
-                        ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        sub.category,
+                        style: GoogleFonts.dmSans(fontSize: 10, color: color),
                       ),
                     ),
                   ],
                 ),
-
-                //----------------THIS WEEK DUE-----------------
-                SizedBox(height: 30),
-                Text(
-                  'This Week'.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                if (buckets.thisWeek.isEmpty)
-                  Center(
-                    child: emptyText('No subscriptions due this week', context),
-                  )
-                else
-                  ...buckets.thisWeek.map(
-                    (sub) => subscriptionTile(
-                      context,
-                      sub.serviceName,
-                      sub.category,
-                      '₹${sub.cost.toStringAsFixed(2)}',
-                      _categoryColor(sub.category), // color based on category
-                      sub.nextPaymentDate,
-                    ),
-                  ),
-
-                //----------------NEXT WEEK DUE-----------------
-                SizedBox(height: 30),
-                Text(
-                  'This Month'.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                if (buckets.thisMonth.isEmpty)
-                  Center(
-                    child: emptyText(
-                      'No subscriptions due this month',
-                      context,
-                    ),
-                  )
-                else
-                  ...buckets.thisMonth.map(
-                    (sub) => subscriptionTile(
-                      context,
-                      sub.serviceName,
-                      sub.category,
-                      '₹${sub.cost.toStringAsFixed(2)}',
-                      _categoryColor(sub.category), // color based on category
-                      sub.nextPaymentDate,
-                    ),
-                  ),
-
-                //----------------NEXT MONTH DUE-----------------
-                SizedBox(height: 30),
-                Text(
-                  'Next MONTH'.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                if (buckets.nextMonth.isEmpty)
-                  Center(
-                    child: emptyText(
-                      'No subscriptions due next month',
-                      context,
-                    ),
-                  )
-                else
-                  ...buckets.nextMonth.map(
-                    (sub) => subscriptionTile(
-                      context,
-                      sub.serviceName,
-                      sub.category,
-                      '₹${sub.cost.toStringAsFixed(2)}',
-                      _categoryColor(sub.category), // color based on category
-                      sub.nextPaymentDate,
-                    ),
-                  ),
               ],
             ),
           ),
-        ),
+
+          // Price + date
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '₹${sub.cost.toStringAsFixed(0)}',
+                style: GoogleFonts.dmSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              if (date != null)
+                Text(
+                  _dateLabel(date),
+                  style: GoogleFonts.dmSans(
+                    fontSize: 11,
+                    color: _dateColor(date),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final buckets = splitSubscriptionsByDate(subscriptions);
+    final totalThisMonth = totalDueThisMonth(subscriptions);
+
+    // Count upcoming (this week + this month + next month)
+    final totalUpcoming =
+        buckets.thisWeek.length +
+        buckets.thisMonth.length +
+        buckets.nextMonth.length;
+
+    return Scaffold(
+      backgroundColor: _bg,
+      drawer: const AppDrawer(currentPage: DrawerPage.payments),
+      appBar: AppBar(
+        backgroundColor: _bg,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: Colors.white.withOpacity(0.06)),
+        ),
+        title: Row(
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [_indigo, _cyan],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.donut_small_rounded,
+                color: Colors.white,
+                size: 17,
+              ),
+            ),
+            const SizedBox(width: 9),
+            Text(
+              'Substrata',
+              style: GoogleFonts.dmSerifDisplay(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(
+                Icons.menu_rounded,
+                color: Colors.white.withOpacity(0.6),
+                size: 24,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
+        ],
+      ),
+
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(color: _indigo, strokeWidth: 2),
+            )
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Page heading ──
+                    Text(
+                      'Payments',
+                      style: GoogleFonts.dmSerifDisplay(
+                        fontSize: 26,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$totalUpcoming upcoming payment${totalUpcoming == 1 ? '' : 's'}',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.35),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ── Due this month banner ──
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            _indigo.withOpacity(0.2),
+                            _cyan.withOpacity(0.08),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: Border.all(color: _indigo.withOpacity(0.25)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: _indigo.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.calendar_month_outlined,
+                              color: _indigoLight,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Due this month',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12,
+                                  color: Colors.white.withOpacity(0.5),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '₹${totalThisMonth.toStringAsFixed(0)}',
+                                style: GoogleFonts.dmSerifDisplay(
+                                  fontSize: 26,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // ── This Week ──
+                    _sectionHeader(
+                      'This Week',
+                      count: buckets.thisWeek.isEmpty
+                          ? null
+                          : '${buckets.thisWeek.length}',
+                    ),
+                    if (buckets.thisWeek.isEmpty)
+                      _emptyState('No payments due this week')
+                    else
+                      ...buckets.thisWeek.map(_paymentTile),
+
+                    const SizedBox(height: 28),
+
+                    // ── This Month ──
+                    _sectionHeader(
+                      'This Month',
+                      count: buckets.thisMonth.isEmpty
+                          ? null
+                          : '${buckets.thisMonth.length}',
+                    ),
+                    if (buckets.thisMonth.isEmpty)
+                      _emptyState('No more payments this month')
+                    else
+                      ...buckets.thisMonth.map(_paymentTile),
+
+                    const SizedBox(height: 28),
+
+                    // ── Next Month ──
+                    _sectionHeader(
+                      'Next Month',
+                      count: buckets.nextMonth.isEmpty
+                          ? null
+                          : '${buckets.nextMonth.length}',
+                    ),
+                    if (buckets.nextMonth.isEmpty)
+                      _emptyState('No payments scheduled next month')
+                    else
+                      ...buckets.nextMonth.map(_paymentTile),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
 
-Widget subscriptionTile(
-  BuildContext context,
-  String title,
-  String subtitle,
-  String price,
-  Color color,
-  DateTime? date,
-) {
-  final iconData = _iconForCategory(subtitle); // Get icon by category
-  return Container(
-    margin: EdgeInsets.only(bottom: 12),
-    padding: EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Theme.of(context).cardColor,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Row(
-      children: [
-        Container(
-          height: 44,
-          width: 44,
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          alignment: Alignment.center,
-          child: Icon(iconData, color: color, size: 20),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                price,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-              SizedBox(height: 4),
-              if (date != null)
-                Text(
-                  "${date.day}/${date.month}/${date.year}",
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontSize: 16,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 PaymentBuckets splitSubscriptionsByDate(List<Subscription> subs) {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
-
   final endOfWeek = today.add(Duration(days: 7 - today.weekday));
-
   final endOfMonth = DateTime(today.year, today.month + 1, 0);
   final startOfNextMonth = DateTime(today.year, today.month + 1, 1);
   final endOfNextMonth = DateTime(today.year, today.month + 2, 0);
@@ -390,9 +492,7 @@ PaymentBuckets splitSubscriptionsByDate(List<Subscription> subs) {
   for (final sub in subs) {
     final date = sub.nextPaymentDate;
     if (date == null) continue;
-
     final paymentDate = DateTime(date.year, date.month, date.day);
-
     if (paymentDate.isBefore(today)) continue;
 
     if (!paymentDate.isAfter(endOfWeek)) {
@@ -416,50 +516,46 @@ double totalDueThisMonth(List<Subscription> subs) {
   final now = DateTime.now();
   final start = DateTime(now.year, now.month, 1);
   final end = DateTime(now.year, now.month + 1, 0);
-
   double total = 0;
-
   for (final sub in subs) {
     final date = sub.nextPaymentDate;
     if (date == null) continue;
-
     if (!date.isBefore(start) && !date.isAfter(end)) {
       total += sub.cost;
     }
   }
-
   return total;
 }
 
 Color _categoryColor(String category) {
   switch (category) {
     case "Streaming":
-      return Colors.redAccent;
+      return const Color(0xFFE24B4A);
     case "Productivity":
-      return Colors.blueAccent;
+      return const Color(0xFF6366F1);
     case "Education":
-      return Colors.greenAccent;
+      return const Color(0xFF22C55E);
     case "Music":
-      return Colors.amberAccent;
+      return const Color(0xFFF59E0B);
     case "Storage":
-      return Colors.limeAccent;
+      return const Color(0xFF06B6D4);
     case "Design":
-      return Colors.pinkAccent;
+      return const Color(0xFFEC4899);
     case "Development":
-      return Colors.indigoAccent;
+      return const Color(0xFF818CF8);
     case "News":
-      return Colors.deepOrangeAccent;
+      return const Color(0xFFF97316);
     case "Fitness":
-      return Colors.purpleAccent;
+      return const Color(0xFFA855F7);
     default:
-      return Colors.grey;
+      return const Color(0xFF6B7280);
   }
 }
 
 IconData _iconForCategory(String category) {
   switch (category) {
     case "Streaming":
-      return Icons.tv;
+      return Icons.tv_outlined;
     case "Productivity":
       return Icons.design_services_outlined;
     case "Education":
@@ -475,18 +571,8 @@ IconData _iconForCategory(String category) {
     case "News":
       return Icons.newspaper_outlined;
     case "Fitness":
-      return Icons.newspaper_outlined;
+      return Icons.fitness_center_outlined;
     default:
-      return Icons.subscriptions;
+      return Icons.subscriptions_outlined;
   }
-}
-
-Widget emptyText(String text, BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Text(
-      text,
-      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
-    ),
-  );
 }

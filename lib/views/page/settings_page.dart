@@ -4,13 +4,13 @@ import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/data/notifiers.dart';
 import 'package:my_app/views/page/change_pw.dart';
 import 'package:my_app/views/page/contact_page.dart';
-import 'package:my_app/views/page/create_pin.dart';
 import 'package:my_app/views/page/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../drawer/app_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,6 +25,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final user = FirebaseAuth.instance.currentUser;
   late String email = user?.email ?? "no email";
 
+  // ── Brand colors (Matched from ReportsScreen) ──
+  static const Color _bg = Color(0xFF0B0F1A);
+  static const Color _card = Color(0xFF131929);
+  static const Color _indigo = Color(0xFF6366F1);
+  static const Color _cyan = Color(0xFF06B6D4);
+  static const Color _border = Color(0x1AFFFFFF);
+  static const Color _errorRed = Color(0xFFE24B4A);
+
   Future<void> savePin(String pin) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('app_pin', pin);
@@ -36,8 +44,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final ref = FirebaseDatabase.instance.ref().child("users").child(user!.uid);
 
     final snapshot = await ref.child("username").get();
-    final snapshot_email = await ref.child("email").get();
-
     if (snapshot.exists) {
       setState(() {
         username = snapshot.value.toString();
@@ -82,581 +88,482 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: _bg,
+      drawer: const AppDrawer(currentPage: DrawerPage.settings),
       appBar: AppBar(
+        backgroundColor: _bg,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: Colors.white.withOpacity(0.06)),
+        ),
+        title: Row(
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [_indigo, _cyan],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.wallet_rounded,
+                color: Colors.white,
+                size: 17,
+              ),
+            ),
+            const SizedBox(width: 9),
+            Text(
+              'Substrata',
+              style: GoogleFonts.dmSerifDisplay(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
         actions: [
           Builder(
             builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, size: 35),
+              icon: Icon(
+                Icons.menu_rounded,
+                color: Colors.white.withOpacity(0.6),
+                size: 24,
+              ),
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
         ],
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
-        elevation: 0,
-        scrolledUnderElevation: 2,
-        surfaceTintColor: Colors.transparent,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: Color(0xFF1f1f1f)),
-        ),
-        automaticallyImplyLeading: false,
-        title: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(Icons.wallet_rounded, size: 35, color: Colors.blueAccent),
-            SizedBox(width: 10),
-            Text('SubTracker', style: TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
       ),
-      drawer: const AppDrawer(currentPage: DrawerPage.settings),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).scaffoldBackgroundColor,
-              Theme.of(context).scaffoldBackgroundColor,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Page Heading ──
+              Text(
+                'Settings',
+                style: GoogleFonts.dmSerifDisplay(
+                  fontSize: 26,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Manage your profile and application preferences',
+                style: GoogleFonts.dmSans(
+                  fontSize: 13,
+                  color: Colors.white.withOpacity(0.35),
+                ),
+              ),
 
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      // User Icon
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.color,
-                        child: Icon(
-                          Icons.person,
-                          color: Color(0xFF000000),
-                          size: 35,
-                        ),
+              const SizedBox(height: 24),
+
+              // ── User Identity Card ──
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: _card,
+                  border: Border.all(color: _border),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.white.withOpacity(0.1),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        color: Colors.white,
+                        size: 24,
                       ),
-
-                      const SizedBox(width: 12),
-
-                      // Name & Email
-                      Column(
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            username.isNotEmpty ? username : "U",
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodyLarge?.color,
+                            username.isNotEmpty ? username : "User",
+                            style: GoogleFonts.dmSans(
+                              color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
                             email,
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodyMedium?.color,
+                            style: GoogleFonts.dmSans(
+                              color: Colors.white.withOpacity(0.4),
                               fontSize: 13,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 24),
-                Text(
-                  'Preferences '.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Container(
-                  padding: EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
+              ),
 
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.notifications_on_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Notifications',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Payment reminders and alerts',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.color,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Switch(
-                            activeThumbColor: Colors.blueAccent,
-                            value: notifyUser,
-                            onChanged: (value) async {
-                              setState(() {
-                                notifyUser = value;
-                              });
-                              await FirebaseDatabase.instance
-                                  .ref("users/${user!.uid}")
-                                  .update({
-                                    "notify": notifyUser, // boolean only
-                                  });
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 35),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.dark_mode_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    themeNotifier.value == ThemeMode.dark
-                                        ? "Dark Mode"
-                                        : "Light Mode",
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Always Enabled',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.color,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Switch(
-                            activeThumbColor: Colors.blueAccent,
-                            value: context.watch<ThemeProvider>().isDark,
-                            onChanged: (val) {
-                              context.read<ThemeProvider>().toggleTheme(val);
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 35),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.wallet_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Currency',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'USD (\$)',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.color,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              items: List.empty(),
-                              onChanged: (value) {},
-                              icon: Icon(Icons.arrow_forward_ios_outlined),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              const SizedBox(height: 28),
 
-                SizedBox(height: 24),
-                Text(
-                  'Security'.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.bold,
-                  ),
+              // ── Preferences Section ──
+              _buildSectionHeader('Preferences'),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
-                SizedBox(height: 16),
-                Container(
-                  padding: EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              // SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            return CreatePinScreen();
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      'Set Pin To Unlock App',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge?.color,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 35),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.phone_android_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              // SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            return ChangePw();
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      'Change Password',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge?.color,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 35),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.wallet_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Payment Method',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    '2 Connected',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.color,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              items: List.empty(),
-                              onChanged: (value) {},
-                              icon: Icon(Icons.arrow_forward_ios_outlined),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                decoration: BoxDecoration(
+                  color: _card,
+                  border: Border.all(color: _border),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-
-                SizedBox(height: 24),
-                Text(
-                  'Support'.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Container(
-                  padding: EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.question_mark_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Help Center',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                child: Column(
+                  children: [
+                    _buildSwitchRow(
+                      icon: Icons.notifications_on_outlined,
+                      title: 'Notifications',
+                      subtitle: 'Payment reminders and alerts',
+                      value: notifyUser,
+                      onChanged: (value) async {
+                        setState(() {
+                          notifyUser = value;
+                        });
+                        await FirebaseDatabase.instance
+                            .ref("users/${user!.uid}")
+                            .update({"notify": notifyUser});
+                      },
+                    ),
+                    _buildDivider(),
+                    _buildSwitchRow(
+                      icon: Icons.dark_mode_outlined,
+                      title: themeNotifier.value == ThemeMode.dark
+                          ? "Dark Mode"
+                          : "Light Mode",
+                      subtitle: 'Always Enabled',
+                      value: context.watch<ThemeProvider>().isDark,
+                      onChanged: (val) {
+                        context.read<ThemeProvider>().toggleTheme(val);
+                      },
+                    ),
+                    _buildDivider(),
+                    _buildActionRow(
+                      icon: Icons.wallet_outlined,
+                      title: 'Currency',
+                      subtitle: 'USD (\$)',
+                      onTap:
+                          () {}, // Handled by standard Dropdown design layout
+                      trailing: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                          items: List.empty(),
+                          onChanged: (value) {},
+                          icon: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white.withOpacity(0.25),
+                            size: 14,
                           ),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              items: List.empty(),
-                              onChanged: (value) {},
-                              icon: Icon(Icons.arrow_forward_ios_outlined),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                      SizedBox(height: 35),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.email_outlined,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color,
-                                size: 30,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            return ContactPage();
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      'Contact Support',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge?.color,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
 
-                SizedBox(height: 24),
-                TextButton(
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
-                    AppLock.of(context)?.disable();
+              const SizedBox(height: 28),
+
+              // ── Security Section ──
+              _buildSectionHeader('Security'),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: _card,
+                  border: Border.all(color: _border),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    _buildActionRow(
+                      icon: Icons.lock_outline_rounded,
+                      title: 'Set Pin To Unlock App',
+                      subtitle: 'Secure local lock screen',
+                      onTap:
+                          () {}, // Maintained from structural button empty code block
+                    ),
+                    _buildDivider(),
+                    _buildActionRow(
+                      icon: Icons.phone_android_outlined,
+                      title: 'Change Password',
+                      subtitle: 'Update account password settings',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChangePw(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildDivider(),
+                    _buildActionRow(
+                      icon: Icons.account_balance_wallet_outlined,
+                      title: 'Payment Method',
+                      subtitle: '2 Connected',
+                      onTap: () {},
+                      trailing: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                          items: List.empty(),
+                          onChanged: (value) {},
+                          icon: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white.withOpacity(0.25),
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // ── Support Section ──
+              _buildSectionHeader('Support'),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: _card,
+                  border: Border.all(color: _border),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    _buildActionRow(
+                      icon: Icons.question_mark_rounded,
+                      title: 'Help Center',
+                      subtitle: 'FAQs and troubleshooting guide',
+                      onTap: () {},
+                      trailing: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                          items: List.empty(),
+                          onChanged: (value) {},
+                          icon: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white.withOpacity(0.25),
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _buildDivider(),
+                    _buildActionRow(
+                      icon: Icons.email_outlined,
+                      title: 'Contact Support',
+                      subtitle: 'Get in touch with our tech desk',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ContactPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // ── Logout Action Item ──
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+                  AppLock.of(context)?.disable();
+                  if (context.mounted) {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => LoginPage()),
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
                     );
-                    removePin();
-                    context.read<ThemeProvider>().refreshThemeForUser();
-                  },
+                  }
+                  removePin();
+                  context.read<ThemeProvider>().refreshThemeForUser();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: _errorRed.withOpacity(0.06),
+                    border: Border.all(color: _errorRed.withOpacity(0.2)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.logout_outlined,
-                        color: Colors.redAccent,
-                        size: 20,
+                      const Icon(
+                        Icons.logout_rounded,
+                        color: _errorRed,
+                        size: 18,
                       ),
-                      SizedBox(width: 5),
+                      const SizedBox(width: 8),
                       Text(
-                        'Logout',
-                        style: TextStyle(color: Colors.redAccent, fontSize: 20),
+                        'Logout Account',
+                        style: GoogleFonts.dmSans(
+                          color: _errorRed,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 24),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Helper Widgets ──────────────────────────────────────────────────────────
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 10),
+      child: Text(
+        title.toUpperCase(),
+        style: GoogleFonts.dmSans(
+          fontSize: 11,
+          letterSpacing: 1.5,
+          color: Colors.white.withOpacity(0.35),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: Colors.white.withOpacity(0.04),
+    );
+  }
+
+  Widget _buildSwitchRow({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white.withOpacity(0.5), size: 22),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white.withOpacity(0.35),
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),
+          SizedBox(
+            height: 24,
+            child: Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                activeTrackColor: _indigo.withOpacity(0.4),
+                activeColor: _cyan,
+                inactiveTrackColor: Colors.white.withOpacity(0.08),
+                inactiveThumbColor: Colors.white.withOpacity(0.3),
+                value: value,
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionRow({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    Widget? trailing,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white.withOpacity(0.5), size: 22),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.dmSans(
+                      color: Colors.white.withOpacity(0.35),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            trailing ??
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white.withOpacity(0.25),
+                  size: 14,
+                ),
+          ],
         ),
       ),
     );

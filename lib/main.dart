@@ -5,7 +5,6 @@ import 'package:my_app/views/data/classes/subscription_notification_checker.dart
 import 'package:my_app/views/data/classes/theme_provider.dart';
 import 'package:my_app/views/page/home_page.dart';
 import 'package:my_app/views/page/payment_page.dart';
-import 'package:my_app/views/page/pin_lock.dart';
 import 'package:my_app/views/page/report_page.dart';
 import 'package:my_app/views/page/settings_page.dart';
 import 'package:my_app/views/widget_tree_second.dart';
@@ -80,8 +79,6 @@ class AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<AuthGate> {
-  bool _pinUnlocked = false;
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
@@ -100,21 +97,6 @@ class _AuthGateState extends State<AuthGate> {
         }
 
         // Logged in but PIN not unlocked
-        if (!_pinUnlocked) {
-          return PinLockScreen(
-            onUnlocked: () {
-              setState(() {
-                _pinUnlocked = true;
-              });
-            },
-          );
-        }
-
-        // Logged in but PIN not unlocked
-        if (!_pinUnlocked && !snapshot.hasData) {
-          return HomeScreen();
-        }
-
 
         return const HomeScreen();
       },

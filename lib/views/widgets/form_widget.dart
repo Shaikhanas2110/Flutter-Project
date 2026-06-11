@@ -28,7 +28,6 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
   static const Color _bg = Color(0xFF0F1424);
   static const Color _indigo = Color(0xFF6366F1);
   static const Color _cyan = Color(0xFF06B6D4);
-  static const Color _indigoLight = Color(0xFF818CF8);
   static const Color _errorRed = Color(0xFFE24B4A);
 
   @override
