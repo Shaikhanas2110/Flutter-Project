@@ -48,7 +48,7 @@ class OnBoardWidgetState extends State<OnBoardWidget> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Substrata',
+                    'SubTracker',
                     style: GoogleFonts.dmSerifDisplay(
                       fontSize: 18,
                       color: Colors.white,

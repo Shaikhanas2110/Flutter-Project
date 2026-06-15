@@ -319,7 +319,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             const SizedBox(width: 9),
             Text(
-              'Substrata',
+              'SubTracker',
               style: GoogleFonts.dmSerifDisplay(
                 fontSize: 18,
                 color: Colors.white,

@@ -544,7 +544,7 @@ class HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 9),
             Text(
-              'Substrata',
+              'SubTracker',
               style: GoogleFonts.dmSerifDisplay(
                 fontSize: 18,
                 color: Colors.white,

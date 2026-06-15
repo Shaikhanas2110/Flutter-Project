@@ -327,14 +327,14 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
-                  Icons.donut_small_rounded,
+                  Icons.wallet_rounded,
                   color: Colors.white,
                   size: 20,
                 ),
               ),
               const SizedBox(width: 10),
               Text(
-                'Substrata',
+                'SubTracker',
                 style: GoogleFonts.dmSerifDisplay(
                   fontSize: 20,
                   color: Colors.white,
@@ -421,7 +421,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(width: 10),
           Text(
-            'Substrata',
+            'SubTracker',
             style: GoogleFonts.dmSerifDisplay(
               fontSize: 18,
               color: Colors.white,
@@ -462,7 +462,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              'to your Substrata account',
+              'to your SubTracker account',
               style: GoogleFonts.dmSans(
                 fontSize: 13,
                 color: const Color.fromRGBO(255, 255, 255, 0.38),
@@ -602,34 +602,62 @@ class _LoginPageState extends State<LoginPage> {
             // Google button
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.g_mobiledata_rounded,
-                  color: Color(0xFF4285F4),
-                  size: 22,
-                ),
-                label: Text(
-                  'Continue with Google',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 14,
-                    color: Colors.white.withValues(alpha: 0.7),
+              child: InkWell(
+                onTap: () {
+                  // Your Google Auth logic here
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
                   ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  side: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    width: 1,
+                  decoration: BoxDecoration(
+                    color: const Color(
+                      0xFF131929,
+                    ), // Matches your app's _card color
+                    border: Border.all(
+                      color: Colors.white.withOpacity(
+                        0.1,
+                      ), // Matches your app's _border color
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      12,
+                    ), // Matches your app's standard radius
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Official Google Style requires an un-stretched, crisp representation
+                      // Replace this Icon with Image.asset('assets/google_logo.png', height: 18) when ready!
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        child: const Icon(
+                          Icons
+                              .g_mobiledata_rounded, // Stand-in icon matching your setup
+                          color: Color(0xFF4285F4), // Official Google Blue
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Continue with Google',
+                        style: TextStyle(
+                          fontFamily:
+                              'Roboto', // Official Google Guideline requirement
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500, // Medium weight
+                          color: Colors.white.withOpacity(0.9),
+                          letterSpacing: 0.25,
+                        ),
+                      ),
+                    ],
                   ),
-                  backgroundColor: Colors.white.withValues(alpha: 0.04),
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
 
             // Sign up row
