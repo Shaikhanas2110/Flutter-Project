@@ -414,7 +414,7 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(9),
             ),
             child: const Icon(
-              Icons.donut_small_rounded,
+              Icons.wallet_rounded,
               color: Colors.white,
               size: 18,
             ),
@@ -532,7 +532,11 @@ class _LoginPageState extends State<LoginPage> {
             // Sign in button
             SizedBox(
               width: double.infinity,
-              child: DecoratedBox(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 10
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [_indigo, _cyan],
@@ -609,47 +613,43 @@ class _LoginPageState extends State<LoginPage> {
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 12,
+                    vertical: 14,
                     horizontal: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(
-                      0xFF131929,
-                    ), // Matches your app's _card color
+                    color: Colors.white, 
                     border: Border.all(
-                      color: Colors.white.withOpacity(
-                        0.1,
-                      ), // Matches your app's _border color
+                      color: const Color(
+                        0xFF747775,
+                      ), 
                       width: 1,
                     ),
                     borderRadius: BorderRadius.circular(
                       12,
-                    ), // Matches your app's standard radius
+                    ), // Matching corner smoothness
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Official Google Style requires an un-stretched, crisp representation
-                      // Replace this Icon with Image.asset('assets/google_logo.png', height: 18) when ready!
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        child: const Icon(
-                          Icons
-                              .g_mobiledata_rounded, // Stand-in icon matching your setup
-                          color: Color(0xFF4285F4), // Official Google Blue
-                          size: 24,
-                        ),
+                      Image.asset(
+                        'images/download.png',
+                        height: 20,
+                        width: 20,
+                        fit: BoxFit.contain,
                       ),
                       const SizedBox(width: 12),
                       Text(
                         'Continue with Google',
                         style: TextStyle(
-                          fontFamily:
-                              'Roboto', // Official Google Guideline requirement
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500, // Medium weight
-                          color: Colors.white.withOpacity(0.9),
+                          fontFamily: 'Roboto', // Official requirement
+                          fontSize:
+                              15, // Adjusted slightly to match design hierarchy
+                          fontWeight: FontWeight
+                              .w500, // Product Sans / Roboto Medium style
+                          color: const Color(
+                            0xFF1F1F1F,
+                          ), // Dark charcoal text color
                           letterSpacing: 0.25,
                         ),
                       ),
@@ -658,6 +658,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Sign up row

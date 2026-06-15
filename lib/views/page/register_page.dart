@@ -250,7 +250,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         borderRadius: BorderRadius.circular(9),
                       ),
                       child: const Icon(
-                        Icons.donut_small_rounded,
+                        Icons.wallet_rounded,
                         color: Colors.white,
                         size: 18,
                       ),

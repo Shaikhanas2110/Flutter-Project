@@ -101,14 +101,14 @@ class _AppDrawerState extends State<AppDrawer> {
                       borderRadius: BorderRadius.circular(9),
                     ),
                     child: const Icon(
-                      Icons.donut_small_rounded,
+                      Icons.wallet_rounded,
                       color: Colors.white,
                       size: 18,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Substrata',
+                    'SubTracker',
                     style: GoogleFonts.dmSerifDisplay(
                       fontSize: 18,
                       color: Colors.white,

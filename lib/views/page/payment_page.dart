@@ -312,7 +312,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
-                Icons.donut_small_rounded,
+                Icons.wallet_rounded,
                 color: Colors.white,
                 size: 17,
               ),
