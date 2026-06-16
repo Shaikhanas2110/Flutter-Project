@@ -6,10 +6,8 @@ class ContactPage extends StatelessWidget {
 
   // ── Brand colors (Matched from ReportsScreen & SettingsScreen) ──
   static const Color _bg = Color(0xFF0B0F1A);
-  static const Color _card = Color(0xFF131929);
   static const Color _indigo = Color(0xFF6366F1);
   static const Color _cyan = Color(0xFF06B6D4);
-  static const Color _border = Color(0x1AFFFFFF);
   static const Color _green = Color(0xFF22C55E);
   static const Color _amber = Color(0xFFF59E0B);
 

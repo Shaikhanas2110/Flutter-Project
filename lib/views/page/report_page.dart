@@ -26,7 +26,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
   static const Color _border = Color(0x1AFFFFFF);
   static const Color _green = Color(0xFF22C55E);
   static const Color _errorRed = Color(0xFFE24B4A);
-  static const Color _amber = Color(0xFFF59E0B);
 
   @override
   void initState() {
